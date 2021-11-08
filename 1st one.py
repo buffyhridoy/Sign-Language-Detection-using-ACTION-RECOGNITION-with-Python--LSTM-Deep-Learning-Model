@@ -33,5 +33,7 @@ cap.release()
 cv2.destroyAllWindows()
 
 print(results.face_landmarks)
-
-
+print(results.face_landmarks.landmark)
+print(len(results.face_landmarks.landmark))
+print(len(results.pose_landmarks.landmark))
+print(len(results.left_hand_landmarks.landmark))
