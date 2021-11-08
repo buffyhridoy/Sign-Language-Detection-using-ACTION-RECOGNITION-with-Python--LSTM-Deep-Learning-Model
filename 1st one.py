@@ -20,11 +20,11 @@ def mediapipe_detection(image, model):
 
 #dran landmark function
 def draw_landmarks(image, results):
-    mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.Face_Connections)
-    mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.Hand_Connections)  
-    mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.Hand_Connections)
-    mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_Connections)
-    
+    mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.FACEMESH_TESSELATION)
+    mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.HAND_CONNECTIONS)  
+    mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.HAND_CONNECTIONS)
+    mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_CONNECTIONS)
+
 
 
 #using holistic model in opencv feed
@@ -34,7 +34,7 @@ with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=
         ret, frame = cap.read()
         results, image = mediapipe_detection(frame, model)
         print(results)
-        #mp_drawing.draw_detection_results(image, results)
+        draw_landmarks(image, results)
         cv2.imshow('OpenCV Feed', image)
         if cv2.waitKey(10) & 0xFF == ord('q'):
             break
@@ -45,4 +45,5 @@ print(results.face_landmarks)
 print(results.face_landmarks.landmark)
 print(len(results.face_landmarks.landmark))
 print(len(results.pose_landmarks.landmark))
-print(len(results.left_hand_landmarks.landmark))
+
+
