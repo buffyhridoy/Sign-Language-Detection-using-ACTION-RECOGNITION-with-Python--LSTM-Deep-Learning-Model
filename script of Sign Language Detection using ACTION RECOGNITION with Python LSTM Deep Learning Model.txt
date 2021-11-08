@@ -1,0 +1,4246 @@
+what's happening guys my name is nicole
+astronaut and in this video
+we're going to be going through sign
+language estimation using action
+detection
+so you might have seen some of my
+previous sign language detection videos
+so those were done
+using a single frame so if i put up i
+love you or thank you
+that was done using that frame at a
+point in time
+this takes it a whole lot further by
+actually using a number of frames and
+actually predicting what action is being
+demonstrated at that point in time so
+say for example we're using thank you
+it's actually going to take the entire
+set of frames
+for that particular action to go and
+determine what sign is being
+demonstrated
+let's take a deeper look as to what
+we'll be going through so as per usual
+we're going to be ambitious in what
+we're going to try to achieve in this
+video
+so the end goal is to produce a
+real-time sign language detection flow
+so we'll be doing this
+all inside of python so we'll be
+building it up step by step to be able
+to detect
+a bunch of different poses and
+specifically sign language
+signs and in order to do that we're
+going to be using a few
+key models so we're going to be using
+media pipe holistic to be able to
+extract key points
+so this is going to allow us to extract
+key points from our hands from our body
+and from our face
+and then we're going to take this one
+step further so we're actually going to
+use tensorflow and keras
+and build up a lstm model to be able to
+predict
+the action which is being shown on the
+screen now in this particular case the
+actions are going to be sign
+language signs so we're going to use
+that lstm model to do that
+and then what we're going to do is we're
+going to put it all together so we're
+going to take media pipe holistic and
+take
+our trained lstm model and actually go
+on ahead and predict
+signs in real time let's take a look at
+how this is all going to fit together
+so first up what we're going to need to
+do is collect a bunch of data on all of
+our different key points so we're going
+to be collecting data on
+our hands on our body and on our face
+and we're going to be saving those as
+numpy arrays
+then what we're going to do is we're
+going to train a deep neural network
+using lstm layers to go on ahead
+and predict that temporal component so
+we're going to be able to predict the
+action
+from a number of frames not just a
+single frame like we've done in the past
+and then what we're going to do is stick
+it all together using opencv
+and actually go on ahead and predict in
+real time using a webcam
+ready to do it let's get to it alrighty
+guys so
+in order to perform sign language
+detection using action detection or
+human action detection using key points
+there's going to be 11 things that we
+need to do so quite a fair bit that
+we're going to be going through but as
+per usual we're going to take this step
+by step and sort of walk through it
+so first thing oh let's actually take a
+look at our steps so what we need to do
+is
+first up install and import some
+dependencies then what we're going to do
+is take a look at how we can extract key
+points using media pipelistic so we've
+gone through this in a previous tutorial
+but we're going to do a little bit of a
+refresher
+then we're going to take a look at how
+we can extract those key point values so
+eventually
+we're going to take these key points to
+say for example all of the joints within
+our hands all of the joints within our
+body and our face
+and we're actually going to export those
+and so these are going to represent our
+different frames at a point in time
+for our lstm model then we're going to
+set up our folders for a collection
+we'll actually collect those key points
+we're going to pre-process that data so
+we'll actually read it back in and
+create
+sequences of key points or sequences of
+frames be able to detect sign language
+then what we're going to do is build and
+train our lstm neural network so this is
+where
+tensorflow and keras are going to come
+into play so we're going to be
+leveraging an lstm layered neural
+network to be able to make our
+predictions
+then we'll make our predictions after
+we've finished training we'll take a
+look at how we can save
+our weights we'll also evaluate our
+model so we'll be able to build up a
+confusion matrix for our multi-class
+model
+and calculate accuracy and then last but
+not least we're going to bring it all
+together and test it out in real time so
+all of these components
+we're going to bring them back together
+and we'll actually be able to perform
+sign language detection in real time
+pretty cool right so first things first
+what we need to do is
+import and install some dependencies
+well install then import
+so let's go ahead and install our
+dependencies and then we'll take a look
+what we've got
+okay those are our dependencies
+successfully installed so if we scroll
+on down
+no warnings or errors there so
+what we've gone and installed up i'm
+clicking all in the wrong places
+what we've gone and installed is one two
+three four
+five six different libraries so we've
+gone
+and written exclamation mark pip
+installed and then this is our first
+library so tensorflow and we're
+specifically using tensorflow 2.4.1
+then we've got tensorflow gpu so again
+this is optional if you've got a gpu on
+your machine so specifically an nvidia
+gpu
+you can leverage tensorflow gpu so we've
+written tensorflow dash gpu
+and then we're importing opencv so
+opencv is an
+open computer or opencv is a computer
+vision library that allows you to work
+with your webcams and makes it a little
+bit easier to build our feed
+so we're going to be using opencv to
+actually access our webcam and extract
+our key points
+then we're going to be using media pipe
+holistic to actually go and extract our
+key points so if you haven't taken a
+look at media pipe holistic yet
+let's take a look media pipe holistic
+and i'll make all of this code as well
+as these links available in the
+description below
+so this is what media pipelistic looks
+like so you're able to get your face key
+points let's zoom in on that a little
+bit so you're able to get key points
+from your face your body
+your hands and what we're effectively
+going to be doing is grabbing all of
+those key points and saving those
+as our frame so this will represent a
+sequence of events
+for a particular sign so we'll be using
+that in
+a little bit and then we're also
+bringing scikit-learn so we're really
+using scikit-learn for our evaluation
+metrics
+as well as to leverage a training and
+testing split
+and then we've got matplotlib so
+matplotlib just helps us visualize
+images a little bit easier so we'll be
+using that a little bit later as well
+so all up what we've written is
+exclamation mark pip
+install tensorflow equals equals 2.4.1
+tensorflow gpu equals equals 2.4.1
+opencv python mediapipe
+sklearn and matplotlib so those are our
+one
+two three four five six different
+libraries that we're going to be using
+so now that we've done that let's go
+ahead and import some of our
+dependencies so that we can
+kick off and get into step two
+okay so those are our initial set of
+dependencies now imported so we've gone
+and
+written it one two three six different
+lines of code there so the first thing
+that we're importing is opencv so to do
+that we've written import
+cv2 so this is just the standard import
+methodology then we've imported numpy so
+import numpy as np so numpy is going to
+help us
+work with our different arrays later on
+and how we actually structure our
+different data sets so we're going to be
+using that
+pretty extensively in this video then
+we've imported os so
+import os so that's just going to make
+it easier to work with file paths
+and then we've imported matplotlib which
+we installed up here
+so from matplotlib import pi plot as plt
+so matplotlib has this cool function in
+it called i am show that just makes it
+easy to visualize images so we'll be
+using that later on
+as we're prototyping our ui so you'll
+see that later
+then we've imported time so we've
+written import
+time and we're going to use time to
+actually take a sleep between each frame
+that we collect so this is going to give
+us time
+to get into position then we've imported
+media pipe so
+import media pipe as mp so remember
+mediapipe is going to give us all of
+that good stuff
+and those are our six dependencies
+imported so again
+all of this code is going to be
+available via github in the description
+below so if you want to pick this up
+you can grab it it's all the completed
+code is there i'm also going to make
+the final trained weights available so
+if you want to pick up those weights
+and skip training all of this you'll be
+able to do that as well
+so that is step one now done
+so we're now going to go on ahead to
+step two so first up what we're going to
+do in step two is just make sure that we
+can access our webcam so we'll take a
+look make sure we can access our webcam
+using opencv and then what we're going
+to do is apply a secondary layer
+where we're actually going to make
+detections using mediapipe so let's go
+ahead and do this first up
+so first up what we're going to do is
+make sure we can access our webcam using
+opencv and if you've seen any of my
+computer vision videos before
+this loop is going to look really
+familiar to you so basically all we're
+doing is we're setting up a video
+capture
+then we're going to loop through every
+single frame and actually render that to
+the screen so
+even though we're looping through a
+frame it's going to look like a video
+because we're effectively just
+that's what a video is multiple frames
+stacked together so let's go ahead
+and do this and then we'll take a look
+okay i believe that
+is our loop now done so let's actually
+take a look at what we've actually gone
+and done here so we've written one two
+three four five six seven eight
+different lines of code so again this
+block of code is going to be really
+similar to what i've used in previous
+computer vision videos and
+it's also going to be repeated quite a
+fair few times so we're going to use it
+when we access media pipe holistic we're
+going to use it to
+extract our frames and then eventually
+we're going to use it down here when we
+go to test it out in real time so
+let's go ahead and take a look at what
+we wrote there so what i've written is
+cap
+equals cv2 dot video capture and then to
+that i've set device
+value zero so this line is effectively
+accessing our webcam so by saying a
+video capture
+zero we're saying hey grab video capture
+device zero and ideally this should be
+our webcam so
+what we're then going to do is have a
+variable called cap where we can
+go on ahead and read the feed from our
+webcam
+then i've written while cap is opened so
+this is effectively double checking that
+we're still accessing our webcam
+and then colon so effectively this is
+initiating a loop so we're going to loop
+through all the frames
+in our camera then and then over here so
+let's actually break this up
+so read our feed so then what we're
+going to do is
+run cap.read so remember we're using our
+video capture device and we're reading
+the frame from our webcam so this is
+effectively like saying hey
+grab the current frame from our webcam
+at this point in time but remember this
+is running really really fast so by
+stacking them all together it's going to
+look like a video
+and then we're actually showing it to
+the user show to screen
+so to do that we've written cv2 dot i am
+show and then we're specifying what we
+want our frame to be named so i've just
+called it opencv
+feed you could name it whatever you like
+and then to that we're passing through
+our frame so when we actually run
+cap.read
+we get two values back so we're
+unpacking that so we get a return value
+and we also get our frame now a frame
+is actually the image from our webcam so
+we're going to pass that frame
+to the cv2.imshow function and this is
+going to show up back to the user
+and then everything from down here
+onwards is this
+is to do with that breaking gracefully
+so all down here so this is effectively
+what happens once we
+quit or once we escape from our loop so
+basically what we're saying if
+cv2.wait key so we're going to wait for
+a key to be pressed inside of our frame
+if the current key equals q then we're
+going to break out of our loop so this
+is all this line is doing so
+if we hit q on our keyboard then it's
+going to break out of the loop
+and once it breaks it's going to run cap
+dot release so this is going to release
+our webcam
+and then it's going to run cv2 dot
+destroy or window so this is going to
+close down our frame so this effectively
+helps us break out of our loop a little
+more gracefully
+so just to recap so we're grabbing our
+webcam we're going to start looping
+through all the frames we're then going
+to read our frame
+show to the screen and then if we want
+to break out of it we're going to break
+gracefully
+so let's go ahead and run this see if it
+works so when you do run this ideally
+you should get a little pop-up at the
+bottom of the screen
+which will represent your frame so we've
+got that there and there you go so
+that's looking all well and good so
+we've got our opencv feed so you can see
+the frame name over there so opencv feed
+opencv feed and that's looking all well
+and good so it looks like it's all
+running it's
+reasonably quick no issues there
+if you don't get a pop-up or if it pops
+up briefly and then closes
+so for the second era just rerun the
+cell again it should work
+if you get a if you don't get a pop-up
+at all then what you might need to do is
+play with this device number over here
+so rather than having device zero
+you might want to try device one you
+might want to try device two so
+on my windows machine it's normally
+device zero on my mac it's actually
+device 2 because i've got
+virtual devices actually set up for
+video there
+now another thing to keep in mind is if
+you wanted to do this particular
+walkthrough in video
+you could actually substitute this value
+here for the name of your video
+you'll see once we actually start
+extracting our key points might get a
+little tricky when you try to do this on
+a video so you might actually perform
+the detections
+on a video but initially you might
+actually train using your real-time
+webcam
+okay so that's our real-time feed and
+now establish now if we wanted to quit
+out of this you can just hit
+q on your keyboard and that's going to
+close it down gracefully no errors
+okay so that is that now done now the
+next thing that we want to do is
+actually start setting up media pipe
+holistics so we're going to create
+another
+cell and create two variables so we're
+going to create one for media pipe
+holistic
+and we're going to create one for the
+media pipe drawing utilities so holistic
+is actually going to be downloading that
+model and leveraging that model
+the drawing utility is just going to
+make it easier to actually draw the key
+points on our face
+now we're actually going to set these up
+as functions eventually because we're
+going to use them so often
+so let's go ahead and first up create
+our variables and then we'll start
+building up these functions
+okay that is media pipe holistic now
+set up or brought in so we've created
+two variables there so written
+mp underscore holistic equals
+mp.solutions.holistic so this is
+actually bringing in a holistic model so
+let's write a comment there so this is
+our holistic
+model then the second line that we've
+written is
+mp underscore drawing equals
+mp.solutions.drawing underscore utils so
+these are our drawing
+utilities so we're going to be using mp
+holistics to actually
+make our detections and we're going to
+be using mp drawing to actually draw
+them now what we actually want to do is
+set up a bit of a function
+to actually go and make our detection so
+rather than writing this this out
+continuously we're going to set up a
+function
+make our lives a little bit easier so
+let's go ahead and do this
+so i'm going to create another cell and
+we're going to set it up
+okay so this is our first function that
+we're going to go out and write so i've
+written
+def so we're going to define a new
+function and then i've written media
+pipe underscore detection
+and then to that function we're going to
+need to pass two different variables so
+we're going to pass our image and we're
+going to pass through
+a media pipe holistic model now there's
+a bunch of steps that we actually need
+to go through in order to make a
+detection with media pipe so first up
+what we need to do
+is grab the image we convert it from bgr
+to rgb
+we then set it to unwritable so this
+saves a little bit of memory
+and then we make our detection convert
+it or set it back to writable and then
+convert it from
+rjb to bgr so by default when we get a
+feed from
+opencv it reads that feed in the channel
+format of bgr so blue green red
+but when we actually go to make a
+detection using mediapipe we need it to
+be in the format of rgb so we're going
+to make that transformation
+using opencv so let's go ahead and
+finish up this function and then
+we'll be able to run it inside of our
+loop
+okay i think that's our media pipe
+detection function
+now done so we've gone and written an
+additional what is that
+six lines of code so one two three four
+five six
+so what we've gone and written is first
+up we're doing the color conversion so
+this is color conversion
+and this is color conversion back so
+you'll see that it's sort of symmetric
+in nature or symmetrical in nature
+this is color conversion what we're
+first up doing is we're grabbing
+our image so we've written cv2 dot cvt
+color
+and then to that we're passing through
+our image so cv2 dot cvt color is a
+function that allows us to change or
+recolor our images so if i type in cv2
+dot cbt color
+so you can see that this function
+converts an input image from one color
+space to another in the case of
+transformation from rgb
+the order of channels should be
+specified explicitly blah blah blah blah
+blah
+so basically this allows us to convert
+the color of our image so
+what i've gone and written is image
+equal cv2.cvt color
+pass through our image and then we've
+passed through our color conversion code
+so this particular line actually
+converts it from
+bgr to rgb so by passing through cv2
+dots color underscore bgr2 rgb we're
+actually performing
+a blue green red to rgb or red green
+blue
+color conversion so likewise when we go
+and unprocess our image here we're going
+to do the same except we're going to go
+rgb
+to bgr this time so again you can sort
+of see how it
+starts to become quite symmetrical then
+what we've gone
+and written is image.flags.writable
+equals
+false so this basically sets our image
+writable status
+to false so if we make say image
+is no longer writable here
+and then we're actually going on ahead
+and making our detection so this line
+over here is
+actually detecting using media pipe so
+written results
+equals model dot process and then to
+that we're passing through this image
+now remember our
+image is going to be our frame from
+opencv so let's write our comment there
+so this
+is make prediction
+and then this line is setting it back to
+writable
+image is now writable
+so we've gone and read an
+image.flags.writable equals true so you
+can start to see how it's quite
+symmetrical so first up we convert the
+color from vgr to rgb
+set it to non-writable make our
+prediction
+set it back to writable and then convert
+it again from rgb
+back to bgr and then what we're going to
+do the last line is we've been return
+image comma result so we're going to
+return our image and our results
+back to our loop so if we go and apply
+this
+loop or this detection here we're not
+actually going to see any results we
+will be able to print out our results
+but this doesn't actually do our
+rendering so let's actually go and do
+this so we're going to
+in between our feed and between our
+rendering
+we're going to make our detection so
+make detections
+and we're going to first up unpack our
+results we'll write image comma results
+equals media pipe underscore detection
+and then we're going to pass through our
+image or right now it'll be our frame
+and our what are we passing through on
+our model
+so now we haven't actually instantiated
+our model so we've created this variable
+up here but we actually need to include
+it inside of a with statement here so
+let's go ahead and do that
+so we're going to tab that in and write
+it up so let's do it
+beautiful all right so we've gone and
+ridden there so we've added a with
+statement to be able to access our
+holistic model so what i've written is
+with
+mp so let's actually add a comment so
+access
+media pipe model or set
+let's write that so with mp underscore
+holistic
+dot holistic and then to that we're
+passing through a couple of keyword
+arguments so min
+underscore detection confidence so this
+is our initial detection
+and we've set that to 0.5 and then we're
+actually specifying our tracking
+confidence so the way the media pipe
+holistic works
+is that it will make an initial
+detection and then from there it'll
+actually just track the key points
+so basically here we're setting our
+initial detection confidence and then
+we're specifying our initial or
+preceding tracking confidence so we're
+setting our detection confidence to 0.5
+and we're setting our tracking
+confidence to 0.5 so again you can play
+around with these
+so if you want a higher initial
+detection confidence you'd bump
+up this value and if you want a higher
+or lower tracking confidence you'd bump
+up or bump down
+this tracking confidence value and then
+we've written as holistic so full line
+is with
+mp holistic dot holistic pass through
+our variables and then as holistic
+and then colon now what we can actually
+do is take this holistic model and sub
+it out inside of our function here so
+this should
+read like that so now all things holding
+equal we should
+actually be getting our results so let's
+actually print out our results initially
+so if we go and run this this is
+actually going to be running with media
+pipe holistic now
+okay so that's looking all good and you
+can see we're printing out media pipe
+holistic so our results down here
+so right now we're not rendering
+anything to the screen but that's okay
+we can actually take a look at our
+results so if we hit q again
+we can escape out of that loop so if we
+actually take a look at these results
+now
+so remember our results are going to be
+inside of this variable called results
+so if we type results you can see that
+we got our solution outputs now if we
+type
+dot and then tab you can see that you've
+got a bunch of different types of
+landmarks so we've got face landmarks
+we've got our left hand landmarks we've
+got our right hand landmarks and we've
+got our pose landmarks
+so our face landmarks are going to be
+all the landmarks on our face
+our left-hand landmarks are going to be
+all the landmarks inside of our joint
+and i've actually got a keypoint map
+that i can share with you as well if you
+want to hit me up in the comments
+left-hand landmarks are going to be in
+our left hand right hand landmarks are
+going to be in our right hand and you'll
+see those
+um at once we visualize them and then
+our pose landmarks are going to be we've
+got a couple for our face
+shoulders our elbows basically your
+whole body
+cool now we can let's actually take a
+look at these so if we take a look at
+face landmarks
+you can see that our landmarks are
+actually represented as all these values
+here so x
+y and z so our x value are going to be
+the x axis position
+y value is going to be our y axis
+position and z value is going to be
+relative distance to the camera now
+there's a whole bunch of different
+landmarks here so if we type in face
+landmarks
+dot landmark this is going to convert it
+to a list
+so if we actually then type in len
+you should be able to see how many
+landmarks we've got there you go so our
+face landmarks we've got 468. now we can
+do the same thing with all of our
+different types of landmarks so if we
+type imposed landmarks
+so for pose we've got 33 now the one
+thing to note is that when you
+don't have face landmarks or pose i
+believe pose landmarks will always
+return a value it'll just
+say non-visible face landmarks if it's
+not in this frame
+you're not actually going to get results
+likewise if i type in left-hand
+landmarks this should throw an error
+because we didn't actually have our hand
+in the frame now if i
+run this again and actually put my hand
+in the frame you'll see that we actually
+get landmarks so if we run this
+let's run it again so again i sort of
+just got that pop up and then it closed
+we'll just run it again and it'll pop
+back up
+and it's closed again third time's a
+charm
+okay there you go so that's my left hand
+in the frame right now
+so if i go and close this and then if we
+go and run this cell again
+you can see that we're now getting our
+left hand landmark so again your hand
+needs to be in the frame
+in order to get that detection i believe
+it applies to your face
+mod the face model as well so again just
+something to keep in mind
+okay that is our first function now done
+so we're now able to make our detections
+using media pipe so we're going to use
+this quite a fair bit later on
+now the next thing that we actually want
+to go ahead and do is actually render
+this so right now we're not actually
+visualizing the landmarks to the frame
+so let's go ahead and write up a
+function to do this i'm just going to
+get rid of this cv2.cv
+color function here so we're just going
+to start setting up our new function so
+let's go ahead and do this
+okay so that is the beginnings of our
+function
+done so what i've written is d e f so
+we're going to define a new function
+and then i've written draw underscore
+landmarks and then to that we're going
+to expect two values so we're going to
+expect our image again
+and we're going to expect the results
+from the media pipe model so what we're
+eventually going to do is grab those
+results
+and render them onto the image so we can
+actually see our different landmarks so
+let's go on ahead and actually
+wrap this up now
+okay that is our
+landmark set now done so what i've gone
+and written there is
+a bunch of different lines so after
+defining our function i've gone and
+started using our mp
+drawing function which remember we set
+up over here so we've written
+mp underscore drawing dot draw landmarks
+and then to that function let's actually
+take a look at that function first up
+mp.drawing
+dot draw landmarks so this is just a
+helper function that actually comes with
+mediapipe that makes it easier to draw
+landmarks onto an image so
+through this we can pass a bunch of
+different values so we can pass our
+image
+then we can pass through our landmark
+list so remember we're actually going to
+get this
+from our media pipe models remember
+we're taking a look at them
+down here so we're taking a look at
+these different landmarks so what we
+need to do is pass through our image
+pass through this set of landmarks and
+then we need to pass through what type
+of connections we want to use
+so inside of those drawing functions or
+inside of a media pipe holistic sorry
+you're actually going to get the
+connection map so if i actually take a
+look at that so let's take a look
+at our face can actually pose
+connections a bit easier to understand
+so mp underscore holistic
+dot pose connections
+so this actually shows you what landmark
+connects to what other landmarks so in
+this case it's saying our nose is
+connecting
+to our left eye inner and then our nose
+is also connecting to our right eye
+inner so basically it's just showing you
+what landmarks connect to what other
+landmarks so let's take a look at a
+bigger one so
+our right shoulder is connecting to our
+right elbow our right shoulder is also
+connecting to our right hip so that's
+going to be that joint
+so you can see that this is actually
+giving you a connection map
+effectively so that is the third thing
+that you need to pass through
+the draw landmarks function and then the
+last two are optional so landmark
+drawing spec
+and connection drawings back we'll come
+to that in a second but those
+last two parameters allow you to apply a
+little bit of formatting so rather than
+sticking with the standard formatting
+which i'll show you in a sec
+you can make it look a little bit nicer
+so we'll actually test that out in a
+second
+or we'll actually update this uh
+function to do that
+so the full line is mp underscore
+drawing
+dot draw underscore landmarks then we're
+passing through our image
+as we need then we're passing through
+our landmarks list so in this case we're
+going to do our face landmarks first up
+and then we're passing through our
+connection map so our connection map is
+available via
+mp underscore holistic so the first one
+that we're passing through is our face
+connections model
+then we've just gone and repeated this
+three times so we're doing it for our
+pose landmarks and then
+passing through our pose connections
+doing that for our left hand landmarks
+doing it for our hand connections right
+hand landmarks i've actually spelt that
+wrong
+right hand and then passing through our
+hand connection so this
+is going to draw face connections
+this is going to draw uh pose
+connections
+this is going to draw hand connections
+and last but not least this is going to
+draw oh also our hand connections but
+this right hand connections
+this is left hand connections
+right so that is our function now done
+now what i'm thinking is let's actually
+do this
+on our frame so this is where matplotlib
+is going to help us out quite a fair bit
+so if i type in plot.i am show
+and by default once we're using or once
+we're looping through this actual
+loop over here we can actually access
+the last frame so remember
+we're extracting our frame from our
+webcam so if i type in frame
+this is actually the last frame that we
+actually extracted from our webcam so we
+can actually take a look at this using
+the plot.iamshow function
+so plot.imshow is actually coming
+from matplotlib over here so it's just a
+function that helps us visualize
+so if we type in frame
+you can see that we're visualizing our
+frame now the colors are a little bit
+off because we haven't done a color
+conversion but if i typed in
+cb2 dot cbt color actually it's
+lowercase isn't that cbt color
+and then convert it so cv2 dot uh what
+is it color
+bgr to rgb
+so you can see that's our colors
+corrected now what we can actually do is
+actually apply our landmarks to that so
+if we go and pass through
+draw landmarks and then what did we need
+to pass through to
+our image and our results so remember
+our results are going to be available
+from our
+media pipe detection model and again
+because we ran that loop we're going to
+be
+able to access the last frame and the
+last results as a result of running this
+so if we actually take a look at results
+you can see that we've got all of those
+there
+now we can actually pass this through
+here so let's do that results
+if we run this uh let's just add a comma
+there
+and we are let's actually apply it on
+our frame so draw landmarks that's my
+bad
+frame results okay no issues there
+let's run it on our frame there you go
+so i just had to separate them out sorry
+my bad there so what we've gone and
+written is draw underscore landmarks
+pass through our frame password results
+and then we can actually go and render
+that
+so that draw landmarks function and
+specifically these mp
+underscore drawing dot draw landmarks
+methods are going to apply to the frame
+in place so it's not going to return a
+variable it's going to apply to that
+current frame
+so now you can see those results there
+so this
+is actually still grabbing our baseline
+frame but it's now starting to draw all
+of our different key points so you can
+see we've got our hand connections we've
+got our pose connections and we've got
+all of our face connections now it looks
+ridiculous right now with those red and
+the green
+but we're going to change that in a
+second by applying some formatting
+first up let's go on ahead and actually
+apply this to our real-time loop
+so under making detections
+let's go and write draw landmarks
+and apply a draw landmarks method so
+draw underscore landmarks
+pass through our image and pass through
+our results so we're just going to be
+passing through
+these two variables to our draw
+landmarks function so i've written draw
+underscore landmarks and then pass
+through our image pass through our
+results
+underneath our make detection section
+but before our rendering so before the
+cv2 dot i am show bit
+so if we go and run this now we should
+be able to see our landmarks drawn to
+the screen
+in real time so let's do it
+and there is our pop-up now what's
+happening oh okay hold on so we've made
+an error there
+we're not an error we just haven't made
+one last update so if we close this now
+so what's actually happening is it was
+drawing to the landmarks
+but we weren't actually rendering the
+new image so we actually just need to
+change this value here so this is still
+rendering the frame from up here
+so if we just type in image here
+now we should see our different
+landmarks rendered so if i
+update that and run it again
+there you go so all of our landmarks are
+now rendered so you can see that it's
+all pretty cool or pretty quick so i can
+put my hands up
+now what we're going to do eventually
+when it comes to sign language detection
+is we're actually going to be able to
+say so hello
+hello and we're going to be able to do i
+love you and thank you so on and so
+forth but we're actually going to use
+these key points that you can currently
+see
+to make those detections pretty cool
+right all right so that's uh
+enough messing around with that you can
+start to see pretty cool so again
+really really quickly really really fast
+and quite fun as well
+okay what are we doing so let's go on
+ahead and quit out of this
+and then the next thing that we want to
+do is right now it kind of doesn't look
+that great so i want to make or apply
+a little bit of formatting so let's go
+on ahead and i'm going to copy this
+and then rather than leaving the default
+rendering function so remember we
+actually had this drawing spec
+method that we can pass through so let's
+take a look at the function again so mp
+we had it down here didn't we
+so we can actually pass through a
+landmark drawing spec and then a
+connection drawing spec so the landmark
+drawing spec
+is basically saying what formatting do
+you want to apply to the dots so
+effectively the joints
+the connection drawing spec is what
+format you want to apply to the
+connections so
+again we can pass through a bunch of
+stuff to that so let's go ahead
+and do this so i'm going to create
+another function so we'll leave our draw
+landmarks function if you wanted to use
+the standard you could
+if you wanted to do it slightly
+different you could as well so let's go
+on ahead and make a new function so
+let's call it
+draw style landmarks
+and again we're going to pass our image
+and results to this
+okay so what we're then going to do is
+copy all of this
+over
+and this is purely optional you could go
+and update the existing draw landmarks
+function if you wanted to no need to go
+and create a new function
+i just like separating it now what we're
+going to do is make a couple of updates
+to this and then we'll come back and
+take a look
+okay so i've gone and updated the
+formatting
+for one of our draw landmarks function
+so i've just gone and done it for our
+face landmark so far but we'll take a
+step back and we'll actually take a look
+at how this applies
+so what i've written is or what i've
+applied to this
+line over here is that that this is the
+only change that i've made is i've added
+these two additional parameters to our
+draw landmarks function
+so i've written mp underscore drawing
+dot drawing spec in camelcase and then
+i've passed through three keyword
+parameters
+so i've gone and specified the color and
+i've specified
+80 110 and 10 so i believe this
+is going to be in bgr
+because we're applying it after we've
+gone and converted our color back so bgr
+gone and specified our thickness as one
+and a circle that should be circle
+radius as one
+and then we've gone and passed through
+mp underscore drawing so this line here
+is actually going to color our
+connections or oh sorry actually going
+to color our
+joint double check that
+going to color our connection
+wait no going to color our drawings our
+landmark
+so this that first line or this first
+parameter here is going to color
+landmark the second one is going to
+color the connection
+so this is the dot color this is the
+line color
+and again i've repeated that this exact
+same line down here
+all i've gone and done is changed the
+color in this case i've set it to 80 256
+121 but again you can play around with
+this to your heart's content
+so if we now go and replace this
+function over here so rather than
+passing through draw landmarks if we
+pass through draw styled
+landmarks this should give us different
+colors on our face
+all right so popped up and closed just
+run it again
+and there you go so you can see that the
+landmark colors for our face are already
+different so we've got
+much smaller circles and we've got this
+light green line
+rather than a thick green line but again
+we can go and tweak this even further so
+rather than just doing landmarks for our
+face we can go and do it for our pose
+model so this is
+these lines over here so the ones
+between my shoulders and my elbows these
+are our pose landmarks
+and the ones on our hand so these really
+detailed ones
+those are actually our hand landmarks so
+let's go ahead and make updates for the
+rest of them and we'll see the impact
+so again if we hit q to escape that we
+can go and make these changes so all i'm
+going to do is i'm going to copy these
+parameters
+to each one of these lines down here
+and then once that's done i'm going to
+change the colors of each one of them
+just so we've got slightly different
+coloring so
+let's go ahead and make these changes
+and then we'll see the impact of those
+okay so what i've gone and done there is
+i've changed the color the thickness and
+the circle radius for each one of these
+but again you can play around with this
+it's purely optional you can change it
+and suit it to your style as you'd like
+so again
+for the post connections i've just got
+to change the color the thickness of the
+line and then the circle radius
+so again i've made the circle radius 4
+which means we're going to have
+large circles and then i've set the
+thickness too which means we're going to
+have slightly bigger lines for our pose
+connections and again i've gone and
+applied the same thickness
+and circle radius parameters for our
+different hand connections so if we go
+and run
+this it's going to look way different
+now
+got a grey pop-up let's run that again
+and there you go so you can see that
+we're getting significantly different
+coloring this time so again
+this is my left hand coloring so you can
+see that it's we've got like effectively
+like magenta lines with blue circles
+it's my right hand we've got like pink
+lines with no dark blue circles
+and then here for our pose connections
+we've got dark blue circles and we've
+got a maroon line so again you can play
+around with this it's purely cosmetic
+not going to impact our performance
+whatsoever but again you can start to
+see all the different models in action
+so this is our left hand model well this
+is my left
+this is my left hand model this is my
+right hand model this is my face model
+and this is my pose model so you can see
+them all working
+in harmony all right that
+is step two now done i think let's take
+a look
+so what's uh key points using media pipe
+holistic so that isn't effectively step
+two now done so we've done
+a ton of stuff there so let's clean this
+up so we can delete that line
+over there so that was just looking at
+our media pipe function
+we'll leave it doesn't really matter so
+we've gone and
+set up our media pipe holistic model
+we've gone and set up our media pipe
+detection
+function our draw landmarks function and
+our draw start landmarks function and
+then we've also gone and
+built up our loop to be able to extract
+those values
+that is step two now done now the next
+thing that we're going to go ahead and
+do is start taking a look at how we can
+extract
+these key point values into a format
+that we're going to be able to use
+so if you remember correctly remember we
+can access our last result through the
+results variables remember this is going
+to give us
+this function or this class back now to
+access our different components we can
+type in or just type
+dot and you can see that we're able to
+grab our face landmarks
+our left hand landmarks our pose
+landmarks and our right hand landmarks
+so say for example we took a look at our
+face landmarks we've got all of those
+there
+you can take a look at our right hand
+landmarks got none
+left hand landmarks got none at the
+moment pose landmarks
+got posed landmarks okay what we need to
+do is
+extract these in a way that is going to
+be a little bit more resilient
+particularly if we don't get value so
+what we're actually going to do is we're
+going to concatenate these into a numpy
+array
+and if we don't have values at a point
+in time we're just going to create a
+numpy zeros array so
+that an array with the same shape with
+zeros
+and we're going to sub that in so let's
+actually take a look and do it for one
+line and then i'll walk you through it
+okay so that is one set of landmarks
+now done so what we've gone and
+extracted there is the set of landmarks
+for one of our key points so what i've
+gone and written is for
+res in results dot pose underscore
+landmarks.landmark so i've written test
+so this is just a test variable
+and i've set that equal to np.array and
+then we've gone and extracted each one
+of those different landmarks so res.x
+res.y res.z and res.visibility so this
+is the equivalent of doing this landmark
+and then grabbing our first value and
+then grabbing dot x
+dot y dot z and then dot visibility
+right so you can start to see that
+you're able to extract each of those
+values
+but right now we've only got the array
+for one landmark
+and we don't have any error handling if
+we don't actually get a landmark back so
+we're going to need to do that so let's
+go ahead and update this for all of our
+landmarks we'll have that in one
+flattened array
+okay so what i've just gone and done
+there is i've just gone and created a
+holder or a placeholder array so i've
+written all underscore landmarks
+equals and then square brackets we could
+actually just call this pose for now and
+write pose
+so let's call it pose so pose equals
+square brackets
+and then as we were looping through
+we're grabbing those array values
+we're just appending those to pose so
+i've written pose equal square brackets
+and then i've added this bit down the
+bottom suppose dot append
+and then i've specified test so now if
+we actually take a look at our pose
+array
+this is going to be oh let's run this
+now this is going to be
+all of our key point values remember if
+we take a look at the length
+of our landmarks what was it i think
+there was 33
+let's take a look so then
+yep there's 33 values so
+this if we take a look at the length of
+our pose variable or pose array
+again we've got 33 values so again this
+gives us the ability to work with each
+one of these landmarks
+now rather than doing it in a loop like
+this we could actually just do it as a
+list comprehension so let's reformat
+this a little bit so again it's going to
+do the same thing
+but it's going to be in a single line so
+let's do that
+okay so what we've now gone and done is
+effectively
+refactored this code into a single line
+so again it's going to give us the exact
+same results
+so again pose and if we type in len
+again you can see that we've got all 33
+now what we're going to do is just
+flatten this array so
+dot flatten
+and again now what we've got is we've
+got all of our landmarks
+in just one big array so remember
+without flatten we're just going to get
+multiple sets of landmarks so if we take
+a look at dot shape
+we're going to get 33 different
+landmarks with four values each if we
+type in dot flatten
+this is going to reshape it so again
+it's effectively going to convert it all
+into one big array because we want it to
+be in this particular format
+when we go and pass it to our lstm model
+down here
+so right now this works for our pose
+landmarks but if we actually went and
+extended this out
+to our left hand and right hand
+landmarks let's actually take a look at
+what happened so if i type in lh
+and then our left-hand landmarks doesn't
+have a variable called visibility so we
+can just get rid of that
+and then type in left and landmarks
+let's put this in another cell
+and if we go and do this you can see
+that this is going to throw an error now
+so if i take a look at
+results dot left hand landmarks
+remember that you're not actually going
+to get any key points if it doesn't see
+your hand in the frame so this is going
+to throw an
+error if we don't do something about it
+so now what we can actually do is just
+add a bit of an if statement to return
+a blank array if we don't have any
+values now the first thing that we need
+to note is how many
+values that we're actually going to get
+inside of our left hand landmarks
+results so let's actually take a look at
+this so let's bring our left hand
+into the frame and run this again
+and again you're going to get the same
+number of key points in your left hand
+and right hand so we don't need to do
+this twice
+right that's our left hand in the frame
+okay we can quit out of it
+now if we take a look where are we down
+here
+so you can see we've now got our
+landmarks and type dot land
+mark these are all our variables and you
+can see that each landmark is going to
+have three values so x
+y and z so if we take a look at the
+length of that
+you can see that we've got 21 different
+landmarks and if we multiply that by 3
+this means that we need a blank array of
+63 values if we don't actually get any
+landmarks back
+if we run this line now however we're
+actually going to get our landmarks
+because we do have them
+right so again this is doing exactly the
+same as what we had for pose but rather
+than having res dot visibility
+we've dropped that now now what we
+actually need to do is
+come up with a bit of error handling
+particularly if we don't have
+our hand in the frame so if we actually
+take a look at our right hand landmark
+so if we change this we're going to
+create a variable called rh for our
+right hand
+and then change this value over here to
+right hand landmarks
+so this is going to throw an error now
+what we want to do is if we don't
+actually have values for our landmark
+we're just going to replace that with a
+blank array
+so to do that we're just going to type
+in np.0s
+and specify our shape which in this case
+for our hand landmarks remember we had
+21 landmarks and then we had three
+landmarks each so we're just going to
+create a blank array that looks a little
+bit like that
+so this looks pretty similar to what we
+have in terms of shape
+for our left-hand landmarks let's hope
+it should be in this variable so but
+rather than having
+actual landmark values we're just going
+to be replacing it with zero values so
+this means that
+even if we don't get landmarks back
+we're still going to be passing through
+an array with the same shape which is
+absolutely critical when you're actually
+going ahead
+and building your neural network so
+let's take a look at these shapes so
+lh dot shape is going to be 63 and if we
+type dot shape here
+that's going to be 63. so what we're
+going to do is just add an if statement
+to the end of this to return a blank
+array
+if we don't actually have any values
+okay so that is our left hand line now
+done now let me just show you what that
+line looks like
+so effectively got two parts to it so
+this first pass is extracting our arrays
+like we did up here so remember we're
+just grabbing out each one of the values
+so the x the y and the z
+and we're concatenating it together in
+one big array
+and then we're flattening it so again
+this line is exactly the same as what we
+did for our pose model up here
+but rather we're doing it for our
+left-hand landmarks we've just gone and
+added this if statement down the bottom
+so if results
+dot hand landmark so basically if we've
+got results then we're going to extract
+these values if we don't have results
+then we're going to replace it with a
+blank numpy array
+similar to what we did down here so if
+we go and run that for our left hand
+landmarks now
+you can take a look so our left hand
+should get results
+if we go and apply the same logic to our
+right hand landmarks let's do that
+and we'll change it to right hand
+so if we take a look at the variable rh
+which is going to be our right hand
+landmarks
+it's going to be a blank numpy array so
+what we've effectively gone
+and done is we've written up some logic
+to handle
+and extract our different key points now
+let's go on ahead we'll combine this all
+together and we'll take a look at all
+that we've written now right now we
+don't have error handling
+set up for our pose model so let's
+actually go and do that so if we take a
+look at how many values we've got in
+pose
+132 so let's add the logic there so if
+results stop
+pose underscore land marks
+then it's going to do that else we want
+a zero array so mp.zeros
+then we're just going to pass through
+132 and then we're going to do the same
+for our face landmark so remember our
+face landmark had a
+whole bunch of extra ones so we type in
+results
+dot face landmarks
+and we take a look at dot landmarks
+so this is going to have how many
+results
+468 and remember there's three values in
+each
+so let's take a look at that again x y
+and z
+so this means we're going to need a
+blank array with
+1404 different placeholders
+so let's go ahead and apply this last
+line here
+so we're going to call this face and
+again we're going to loop through and
+grab our face landmarks
+and then we're going to check so if
+we've got results in face
+underscore landmarks else we're going to
+specify a numpy array with 1404 values
+okay let's actually take a look at all
+of these values so if we type in pose
+we've got an array
+if we type in face we've got an array if
+we type in lh
+we've got an array and if we type in rh
+we've got a blank array all right cool
+that is all working well and good
+now let's actually take a look at what
+we've written there because i went and
+wrote a lot
+so let's actually take a look at the
+face one because that was the most
+recent one so i've written face
+equals mp.array and so this is a numpy
+array function so basically what we're
+passing through to that
+is all of these values here so inside of
+square brackets i've passed through so
+for one set of square brackets
+or passing through res.x res.y so this
+is effectively doing
+this over here res.x res.y res.c
+for res in
+results.facelandmarks.landmark so let's
+actually extract this out because
+otherwise it's going to be a nightmare
+to explain so
+let's take a look at each of these
+stages so if we've got results inside of
+our face landmarks array then we're
+going to go ahead and do this
+else we're going to go and return np.0s
+and then the np.0s array or the
+placeholder array is going to have the
+same
+number of landmarks remember x y and z
+multiplied by the total number of
+landmarks
+so i believe in the face model it's 468
+so it'll be 468. multiply by 3.
+now if we do have results what we're
+effectively doing is we're looping
+through each result so for
+res in results.facelandmarks.landmark
+similar to what we did here
+and we're extracting res x res y and res
+z
+so these are the each or each of the
+individual values for one landmark
+and we're effectively putting them
+inside of one array here so this is
+grabbing
+the landmarks for one array and then by
+looping through we're going to be
+putting them all
+inside of this big array here so you can
+see this square bracket
+and that square bracket and then we're
+putting it inside of a numpy array
+and then we're flattening it so dot
+flatten so that effectively gives us
+the shape that we need now all these
+four lines are effectively going to give
+us our values that we're going to need
+for our landmark detection and
+specifically our action detection
+so what we're actually going to do is
+we're actually going to put that inside
+of a function so let's go ahead and wrap
+this up
+key thing to note is that all this code
+will be available in the description
+below so if you haven't got this or if
+you want to ask me questions hit me up
+in the comments below
+the code will also be available in the
+descriptions below let's write this
+function and then we'll take a look at
+what's next
+okay so that is part of our function now
+done
+now another thing to call that is that
+we've passed through 132 but remember
+that
+each one of these landmarks we could
+also specify as 33 landmarks multiplied
+by four landmarks each
+and then for our face landmarks we
+remember we had 468 let's actually take
+a look
+face landmarks 468 and then we had three
+landmarks each which was x y and z
+remember pose has the extra landmark for
+or the extra value for visibility as
+well so we could also specify it like
+this again it's no different but just to
+keep it consistent we'll change it there
+all righty so what we've gone and
+written here is we've created a new
+function so
+def extract underscore key points and
+then to that we're passing through our
+results value
+which we'll get back from our media pipe
+loop up here so remember we're going to
+get results up there so we're going to
+be passing that results value
+and doing that extraction inside of this
+function so again
+this or these four sets of lines are no
+different to what we've got over here so
+again there's quite a fair bit in this
+particular line
+but it's doing the exact same thing it's
+just extracting those key points and
+converting it into a numpy
+array now what we can actually do is
+concatenate all of these together so
+concatenate pose face
+left hand and right hand so we're going
+to be using all of those key points to
+actually do our sign language detection
+so let's actually go and concatenate
+those
+okay that is our keypoint extraction
+function
+now done so i've just gone and added one
+additional line there so return
+and then np dot concatenate and then to
+that we're passing through
+all of our different key points that
+we've gone to a great deal of trouble to
+extract so
+extracted pose face lh and then rh
+remember these are going to be opposed
+key points
+which is a flattened array of each one
+of the x
+y z invisibility values this is going to
+be the same for face this is going to be
+the same for left hand and right hand so
+if we actually run that now extract key
+points
+on our results
+we've got all of our values there and if
+we take a look at shape
+this is going to be 1662. so let's make
+sure that we've got the right number of
+values remember
+our face model has 468 multiplied by
+three values
+opposed mortar has 33 by four a left
+hand
+and right hand how many did those have
+uh
+left hand landmark 21
+so plus 21 times 3 plus 21 times 3. so
+this will be our left-hand key points
+and our right-hand key points
+we've got all the values so again so
+this basically means that we're getting
+all of the values inside of a flat array
+so if we take a look at it
+we've got all of those values there so
+take a look at the first 10 values so
+those are going to be those
+and those ideally would be the pose
+landmarks if we take a look
+at the last 10 values those are going to
+effectively be our right hand landmarks
+over there okay
+so what are we up to now so that is
+all of section three and now done so we
+did quite a fair bit there so again it's
+quite involved but again all this code
+is going to be available
+in the description below if i didn't go
+through it in enough detail here
+so you can pick it up and run with it
+the next thing that we're going to start
+doing is start setting up
+our folders for our array collection so
+what we're actually going to be
+outputting
+as a result of going through our data
+collection is
+these key points so our key points are
+effectively going to form
+our frame values so we're actually going
+to use those extracted key points to go
+and decode our sign language so this is
+almost like
+human action detection so it's one step
+even further
+now we're going to set up a couple of
+variables first up so let's go ahead and
+do this so under step 4
+create a new cell and let's get to it
+okay so i've gone and set up four new
+variables there so we've written four
+new lines of code
+so let's take a look at each one of
+these and then i'll explain them in
+detail
+so first up what i've written is data
+underscore path equals os.path.join
+we'll set that equal to
+mp underscore data this is just going to
+be a variable that holds
+let's actually add some commentary so
+this is going to be
+path for the exported data
+which is effectively going to be our
+numpy arrays right numpy arrays
+that we're going to use this extract
+keypoints function for
+then i've gone and set up a variable for
+our actions so these are going to be the
+actions
+that we try to detect
+so we're going to be detecting three
+different actions in our action
+model right so we're going to detect
+hello we're going to detect
+thanks so thanks and then we're going to
+detect i love you right so i love you
+cool
+right so hello thanks
+and then i love you so again what we're
+actually going to be doing is we're
+actually going to be using
+30 frames so this is effectively 30
+different sets of preceding key points
+to be able to classify that action so if
+you've watched my previous
+object detection video so i'll include a
+link somewhere up above
+you can take a look at how we did that
+but that's actually doing it on a single
+frame so again it's not true action
+detection
+in this particular case what we're going
+to be doing is use
+30 different frames of data so 30
+multiplied by 1662 key points
+to be able to detect that particular
+action so way more advanced than what we
+did previously
+and we're specifically going to do it
+for each one of these actions so
+effectively what we're going to be doing
+is we're going to be collecting data
+for three different actions multiplied
+by
+30 frames multiplied by the number of
+sequences that we want to collect
+so in this case we're going to collect
+30 sequences so i think of this as
+30 videos right so 30
+videos worth of
+data and then each of those videos
+videos are going to be
+30 frames in length
+so the two other variables that we've
+gone and created are no underscore
+sequences so number of sequences
+and set that equals to 30 so think of
+that as the number of videos that we're
+going to be collecting
+so we're effectively collecting 30
+videos worth of data for each
+action so remember our different actions
+are going to be hello thanks and i love
+you
+and then each one of those videos are
+going to be 30 frames in length so we're
+calling this sequence length so sequence
+underscore length equals 30. so
+effectively we're going to be collecting
+30 videos each of which are 30 frames in
+length multiplied by
+three actions multiplied by 1 62 key
+points so quite a fair bit of data that
+we're going to be working with
+but again we'll take this step by step
+so remember we've gone and created our
+data path which is where we're going to
+store this data
+we've gone and created our actions
+variable which represents each one of
+our different actions we're going to try
+to detect
+and again if you wanted to detect more
+actions you definitely could so if you
+wanted to detect
+the different alphabet letters or the
+different poses
+you could definitely do that as well and
+you can go and create this until your
+heart's content
+the cool thing is that later on in step
+11 i'm going to show you how to
+concatenate these words together
+so that you can actually put a sentence
+together which is something that i
+haven't done before but i really wanted
+to show it in this video
+so what are we up to here
+okay so we've got our different actions
+we've got our data paths
+we've got the number of sequences we're
+going to collect in the sequence link so
+now what we're actually going to do
+is we're going to create some folders
+that we're actually going to use to
+store our data so let's go ahead and do
+this
+so we're effectively going to loop
+through the number of actions loop
+through the number of sequences
+and then create those folders so let's
+do it
+okay so what i've gone and written
+there is one two three four five six
+different lines of code
+so what we're going to be trying to do
+here is create a bunch of different
+folders so effectively we're going to
+create one folder for each action so
+we'd have
+a hello thanks
+and i love you and then within each one
+of these
+subfolders we're going to have a folder
+for each sequence of action so we're
+going to have
+0 one so on and so forth right so we're
+gonna have one folder for each sequence
+or one video right
+two all the way right up to the end of
+our sequence which should be
+29 because we've started at zero so what
+we're effectively going to be doing is
+we're going to be
+storing each one of our 30 frames inside
+of
+these folders so for sequence 0 which is
+going to be
+this particular loop here we're going to
+have 30 different frames worth of data
+so 30 different key points
+worth of data from abstract keypoints
+values
+now these are going to be stored as
+numpy arrays so inside of each one of
+these folders we're going to have 30
+different values
+so this block of code down here is
+actually doing that so what i've written
+is for
+action in actions and then so that's
+going to loop through all of our
+different actions
+and then for sequence in range number
+underscore sequences so this is going to
+loop through the
+30 different videos that we're going to
+be collecting or 30 different frame sets
+i'm just going to call the videos
+because it's going to make more sense
+and then what we're doing is we're going
+to try to run and make these directories
+so if they already exist it's going to
+throw an error so to keep it a little
+bit cleaner i've just written a try
+except
+block so try colon os
+dot make deers so this is going to make
+the subdirectories as well
+and then to that we've written os dot
+path dot join and then we've passed
+through the data path which is
+this value up here so it's going to
+create a new folder called mp underscore
+data and then it's going to create a sub
+folder per action so again it'll create
+this folder
+and then i'll create a sequence folder
+so again i've passed through str and
+then sequence so that's going to create
+these folders here so
+0 1 2 all the way up to 29 let's add dot
+dot so it doesn't look like
+i'm skimping up and then if those
+folders are already created then we're
+just going to skip it so accept
+and then pass so if i go and run this
+now all things holding equal
+inside of our folders we should now have
+that folder structure so i'm just going
+to open it up
+so you can see that we've got this mp
+underscore data folder and if i step
+into that we've got our three folders so
+we've got let's make this a bit bigger
+so you can see it
+so i've got hello i love you and thanks
+hello
+thanks i love you it's sort of it's just
+going to follow the path that we had
+up here hello thanks i love you and then
+inside of each one of these let's zoom
+out
+inside of each one of these folders
+we're going to have the individual
+sequence folder so 0 1 2
+3 so on now inside of these eventually
+we're going to have
+30 different arrays worth of data from
+our key points again we're going to have
+a stacked value so we're gonna have a
+let's zoom out here so we're gonna have
+three actions 30 videos per action and
+then 30 frames per video so again you
+can start to see how that starts to
+build up
+now again if i delete this right so
+let's delete it
+mp underscore data and if i run this
+again it's just going to go and create a
+new folder directory so you can see
+that's back there
+cool that is step four now done so we've
+now gone and created our folders now the
+next thing that we need to do is
+actually start collecting our data so
+let's go on ahead and start doing this
+so in order to do this we're actually
+going to start out with
+our media pipe loop that we had right up
+here so let's copy this
+and we're just going to make a couple of
+changes to it so if i copy that
+and bring it down to here what we're now
+going to do
+is rather than looping consistently
+through
+our webcam we're actually going to loop
+through and specifically
+take a snapshot at each point in time so
+we're going to loop through each one of
+our actions so we're going to collect
+our actions and then we're going to loop
+through and collect
+a set of frames per video so remember
+we're going to collect 30 frames per
+video and we're going to click 30 videos
+and then we're going to do that three
+times for each action
+so we're going to tweak this to do
+exactly that so let's go ahead and do
+that so
+first up what i'm going to do is i'm
+going to change this loop so rather than
+running while cap is opened
+we're going to change this and loop
+through our sequences and our actions so
+let's do it
+okay so that is our first change there
+so i've gone and
+replaced the wild cap is open bit with
+our different loops so first up we're
+going to loop through all of our actions
+so this is going to loop through hello
+thanks and i love you so hello thanks
+i love you then we're looping through
+each one of our videos so we're going to
+loop
+30 times to get and capture 30 videos
+per action
+and then we're looping through each
+frame so remember our video
+is a sequence of frames so we're going
+to loop 30 times so we're going to
+collect 30 key points
+per video right so for action in actions
+and then i've written four
+sequence in range no underscore
+sequences so number of sequences
+and then colon and then we're looping
+through a different frame so for
+frame underscore num in range sequence
+underscore length
+and what we're going to do is we're
+going to tab all of this in
+so that can stay there so this is all
+going to go in a little bit
+then what we need to do is apply a
+little bit of logic to actually collect
+our frame so right now this is going to
+go really quick if we were to try to go
+and run this right now
+it'd be collecting frames so quickly
+that we'd barely have time to actually
+go and collect those different frames
+so what we're going to do is we're going
+to apply a little bit of logic to take a
+break between
+each one of the frames that are being
+collected or each one of the videos that
+are being collected so let's go on ahead
+and do this
+actually that's key thing to note we're
+going to take a break between
+each video that's collected so we're
+effectively going to go
+move our hand that's 30 seconds move our
+hand that's 30 oh sorry move our hand
+that's 30 frames move our hand that's 30
+frames
+break move our hand that's 30 frames
+break move our hand so you've got a
+little bit of time
+to move and go back into the sequence so
+let's go ahead and apply this logic
+okay so that is our collection logic now
+done so
+all we're really doing here is we're
+just outputting to the screen and taking
+a break actually we've actually
+skipped the main bit cv2.weight key
+500. so that is our collection logic now
+done let's bump that up a bit
+okay so what's actually going to happen
+here is first up what's going to happen
+is for each video if we're at frame 0
+we're going to take a break
+right and that break is going to be 2
+seconds in length so what i've written
+is cv2 dot weight key down there
+let's actually take a look step by step
+so if frame underscore num equals zero
+so this means that if we're at frame
+zero
+then we're going to take a break down
+here so cv2 dot weight key
+2000. all these lines are doing so these
+these two lines up here all these two
+blocks of code
+are just outputting text to our screen
+so again these are optional if you don't
+want to do this
+you can skip it but it's going to be
+hard to know when frames are starting
+and not
+so the first thing that we've written or
+the first block is going to print out
+starting collection
+in the middle of the screen so i've
+written cv2 dot put text
+and then to that will pass through our
+image we've passed through the string
+that we want to print out to starting
+collection and then we'll specify the
+position so 120 pixels by 200 pixels so
+i believe this is the x value the y
+value
+and then we've gone and specified the
+font that we want to use so cv2 dot
+font underscore hershey underscore
+simplex
+pass through the font size pass through
+the font color so b
+g r so this case is going to be green
+pass through the line width which we've
+set for and we've passed through the
+line type
+which is cv2.line underscore a8
+so that's the first block of code that
+we've written here so this is going to
+print starting collection right in the
+middle of the screen if we're at the
+start of the video
+and it's also going to pause as well
+down here remember then the next line
+that we're going to print out is cv2.put
+text and again
+image and then we're actually going to
+print out what we're collecting
+so we're going to say collecting frames
+for a particular action so we're using
+some string formatting to pass through
+that action there and then we're also
+going to specify the video number so in
+this case or the sequence number so
+video number and we're going to print
+out the sequence there
+and then we're specifying where we're
+going to start that so this is going to
+be in the
+top of our box so 15 comma 12 and then
+we're going to pass through our font
+type so cv2
+font underscore hershey underscore
+simplex pass through our font size which
+is going to be 0.5
+pass through our line color or our font
+color so remember b
+g r so it's going to be red pass through
+the line width and pass through the line
+type
+and then remember we've got cv2.weight
+key so this is going to take a two
+second break between
+each video and then if we're not at
+frame
+number zero then what we're going to do
+is we're just going to print out the
+same line down here so we're not going
+to print out starting collection and
+take a break
+we're just going to keep printing out
+what frame we're currently collecting so
+you'll see this in
+action in a second okay but right now we
+haven't actually collected the frame so
+this is just giving us a little bit of
+weight logic so rather than saying
+collection logic let's write weight
+logic so let's now go in ahead and
+actually collect our frame so remember
+we're going to use
+our extract keypoints function from up
+here to go and ahead and grab these
+values
+and what we're going to do is you can
+actually use np.save so numpy.save and
+if we say
+so let's call this results up here
+result test
+right so result test is going to be our
+example what we can do is write
+numpy.save and save it down so if i type
+in
+the name of the file and then result
+test
+that's going to save our numpy array so
+we're going to use this in a second so
+if we go back to the folder that we're
+working
+you can see that we've now saved
+numpy.00.npy let's take a look
+so you can see that right there so zero
+dot npy
+so what we're effectively going to be
+doing is saving each frame as a numpy
+array inside of our mp
+underscore data folder so we'll have 30
+numpy arrays in here
+30 numpy arrays in here so on and so
+forth to load these back up you can
+actually use
+np.load and we can just pass through the
+name so 0.mpy
+and that's going to load back up our
+array so let's go ahead
+and apply the final couple of steps to
+actually go and collect our images so
+remember we've gone and written two new
+blocks of code so these
+are new and then these are new as well
+so this weight logic so let's actually
+write this out so this is new
+and then this block here is the new new
+loop
+okay let's go on ahead and
+apply the keypoint extraction and
+actually save it down into its folders
+okay i think that's the last set of key
+points
+now collected or the last bit of logic
+they're collected
+so what remember what we've gone and
+done is we're looping through our
+actions
+our sequences aka our videos and then
+each of the frames within our videos
+and what we're going to go ahead and do
+is apply a same logic so we're going to
+go through
+read of capture from our frame we're
+then going to apply a media pipe
+detection
+draw our styled landmarks then we're
+going to take a break if we're at
+the first frame in a video and then
+we're going to go
+ahead and extract our different key
+points and save them into our folders so
+the last three lines that we've actually
+gone and written
+are key points equals extract underscore
+key points
+and then to that we're passing through
+the results that we get from our media
+pipe detection function
+and then we're creating a path so this
+is where we're actually going to save
+our frame and it's specifically the
+frame
+name as well well the full path to this
+specific numpy array so what we've got
+in written is os
+dot path dot join and then we've written
+data path which is
+mpe data what we had up here
+pass through the action pass through the
+sequence number so this is our video
+number and then pass through the frame
+number so remember we're going to have
+30 sequences and we're going to have 30
+frames per sequence or 30 frames per
+video
+then we're using numpy.save so mp.save
+and then we're passing through the numpy
+path and then the keypoints
+so now all that's left to do is actually
+go on ahead and start
+collecting this data so as soon as we
+run this we're going to kick into the
+loop and actually start collecting our
+key points
+so let's go ahead and do it now actually
+before we do that remember we're going
+to have three different actions so we're
+going to have hello
+we're going to have thank you so thank
+you is going to be sort of like this
+maybe i'll move the mic out of the way
+so we've got a little bit more room so
+thank you and then we're also going to
+have i love you so i love you right
+we're going to move our hands around so
+let's run
+this cell here and look we've already
+got an error uh this should be if frame
+equals equals num
+let's try that out
+and again we should get our pop-up so as
+soon as our pop-up pops up
+we should be able to kick things off
+there we go
+oh that's looking a little bit janky up
+there let's just quick
+quit out of that
+hold on let's just double check what's
+happened there so that was looking a
+little bit
+looks like the line width was a little
+bit too thick so let's
+change this down here
+frame underscore numb it wasn't actually
+picking that up
+okay we might have missed it let's try
+that again
+what have we gotten done there so line
+32
+should be one so i'm just going to
+change the line width because you saw up
+there as it was trying to collect
+it was getting a little bit um the line
+width was too thick so you couldn't
+actually see the font
+and right now my webcam is still
+activated but that cell is
+exited so i'm just going to run
+cap.release
+and cv2.destroy
+all windows
+so that's released okay let's try
+running that
+again
+okay that's our frame say hello
+we're not getting the starting frame
+that's a little bit annoying hold on
+let's dig into this a little bit
+okay issue solved i worked out what it
+was so let's just
+and release our camera so this line down
+here
+just needs to be tabbed in so what we
+need is this
+break gracefully section which actually
+gives us a break
+we need this to be in line with our
+loop so you can see that there right now
+all things holding equal if we go and
+run our collection now what you should
+see is that we get a
+graceful break between each one of those
+collection runs that we actually get
+and again i'm just going to clear out
+our folders actually what i'll do is
+i'll just delete them and recreate them
+so we can just right click
+on mp data delete those so we don't have
+any leftover messy data and we can just
+rerun this
+sequence generate or their folder
+creation so that will recreate our mp
+data folders all right and we should be
+good to go now so ideally what you
+should see is that it will
+initially say starting collection we'll
+then get two seconds to get into
+position we can then perform our action
+for 30 frames it'll then go to starting
+collection again so we're going to do
+that 30 times
+per action and that will give us 30
+frames for 30 sequences
+for each individual of our three
+different actions so let's go ahead and
+kick this off
+fingers crossed this works this time
+let's wait and see
+all right so let's go and run this now
+so again you should get a little pop-up
+and it should say starting collection
+and we can kick things off and collect
+our data all right there we go
+there you go
+and try to keep your hand in the frame
+as well
+i'm just moving around and if you wanted
+to
+sorry the mic's a little bit quiet
+because i got it out of the frame if you
+wanted to you could also do this with um
+to shorten the break as well you can see
+every time we're starting the collection
+i'm putting my hand back in position
+and i'm just moving around so we get a
+bunch of different angles
+and i'm doing it with both my left hand
+and my right hand
+that one's probably a little bit screwy
+and so as it's collecting it's actually
+collecting 30 frames each time
+lean a little bit further back
+you can see it's printing out what video
+number we're up to at the top right so
+we're up to 28
+be switching soon
+thank you now there we go we'll now do
+thanks
+just going to make sure we're fully in
+the frame
+and even go out of the frame for a
+little bit because remember when we're
+outside the frame we're not going to get
+landmarks so it's just going to set it
+to zero
+and so we'll test it out we'll see what
+performance looks like and again you
+could always add additional frames as
+well if you wanted to
+do it a different angle
+now found having 30 sequences
+of 30 frames tends to work pretty long
+or pretty well
+if you wanted to do it for longer you
+could definitely do that as well right
+so you could start collecting
+sequences of 60 seconds in length
+you play around with it
+it should be i love you oh thanks
+so i love you we could start from the
+bottom bring it up
+and so you can see each time starting
+stating starting collection i'm sort of
+stepping back and resetting my frame
+right
+so you could do that
+come out from the side
+and even though i've got the green
+screen up you could do this without the
+green screen i tried it yesterday so
+again the green screen
+i've just got it up because i'm
+recording right now but and start to see
+what's possible
+and the beauty of using the key points
+with
+media pipe is that we're actually
+collecting um
+[Music]
+we're actually collecting the key points
+so we're not so concerned about what the
+image looks like
+we're concerned about the sequence of
+key points which makes it a lot more
+resilient in a different
+in different scenarios
+let's do a couple of stationary ones
+and that is our data collected
+so we've gone through and collected a
+ton of data now so if we go into our d
+drive or wherever you've got it stored
+so if we go into mp data
+and hello so you can see we've got all
+of our numpy arrays so let's zoom in on
+there
+so you can see we've got 0 all the way
+out to 29 and if we zoom out
+and go to hello let's just close this so
+you can see that we've got all
+of our different sequences stored as
+numpy rates if we go into i love you
+likewise
+and if we go into thanks again likewise
+okay so that took a little while to get
+to but we've now got
+our data done and collected so that is
+step five
+now done and dusted so again we did
+quite a fair bit in there so we started
+off with
+our initial loop which we built up in
+step number two so this loop
+and we added three key things so we
+added this new loop so rather than
+looping through each individual frame in
+real time we
+started looping through our actions our
+sequence and our frame numbers
+so remember our sequence is effectively
+one video and each video is going to be
+30 frames in length
+and then we applied our new weight logic
+so this allows us to
+take a break between the image
+collection so it gives us a little bit
+of time to get into position
+and then we went and exported our key
+points to numpy arrays and breaks
+gracefully remember that was a thing
+that was blocking us from getting that
+nice
+transition now we're up to step six
+pre-processing our data and creating
+labels and features
+so first up what we're going to do is
+import a couple of additional
+dependencies so specifically we are
+going to import
+train test split from scikit learn so
+this is going to allow us to create a
+training and a testing partition
+and we're also going to import the two
+categorical function from keras
+utilities this is just going to help us
+with our labels
+so let's go ahead and do this
+okay those are our two dependencies now
+imported so i've gone and written
+two lines of code there so we went and
+wrote from
+sklearn dot model underscore selection
+import
+train lag in a little bit train
+underscore test underscore split and
+then we imported
+from tenseflow.keras.utils import to
+categorical
+so our trained test split function is
+going to allow us to partition our data
+into a training partition
+in a testing partition so this is just
+going to allow us to train on one
+partition
+and test it out on a different segment
+of our data and then our two categorical
+function is just really useful when
+you've got one hot or to convert your
+data into one hot encoded data but
+you'll see that in a second
+so the next thing that we need to do is
+just create a label map so basically
+we're going to create a
+label array or a label dictionary to
+represent each one of our different
+actions
+so let's create that label map okay
+that is our label map created so what
+we've gone and done let's actually just
+take a look at its structure
+so what we've just gone and done is
+created a dictionary and our dictionary
+just has
+the label word so hello and then that's
+set to zero
+thanks that's set to one and i love you
+and that's set to two so we're going to
+use this when we go to actually create
+our training data so our training and
+our testing data
+so we're actually going to create a
+segment or a set of labels
+which represents these different ids so
+0 1
+and 2 in a second now in order to do
+that we've written label underscore map
+equals and then squiggly brackets label
+colon
+num and then we're effectively looping
+through each one of our actions that we
+had
+from over here so we're looping through
+each one of those
+so four num comma label in enumerate
+actions
+and we get this now what we're going to
+do is actually start
+bringing all of our data together and
+structuring it so remember we've gone
+and collected
+all of our different key point sequences
+now what we're going to do is we're
+actually going to structure those in
+and bring them in so remember we had
+what was it 1662 values
+per sequence what we want to do is
+create one big array which actually
+contains
+all of our data so effectively what
+we're going to end up having is
+90 arrays with 30 frames in each one of
+those arrays with
+1662 values which represents our key
+points
+in each so let's go on ahead and do this
+so we're going to bring in our data now
+okay that is our data now read in
+now there's quite a fair few lines there
+so let's take a step by step
+so first up we're creating two blank
+arrays so sequences and labels
+our sequences is going to effectively
+represent our feature data or our x data
+and our labels is effectively going to
+represent our labels or our y data
+so we're going to use our features and
+train a model to represent the
+relationship between our labels now
+what i've gone and done is we're looping
+through each of our actions
+each of our sequences so remember each
+sequence is going to oh we're going to
+have 30 sequences or 30 videos
+and then we're creating a blank array
+called window so this is going to
+represent
+all of the different frames that we've
+got for that particular sequence
+then what we're doing is we're looping
+through each one of the frames so for
+frame in range sequence length so
+remember our frame
+or a sequence or our video is going to
+be 30 frames in length
+and we're using numpy.load to load up
+that frame
+so in order to do that we're passing
+through the full path to our different
+numpy arrays
+so i've written os.path.join and then
+i've passed through data underscore path
+the action the sequence and this
+is which video number we're effectively
+up to and then which frame number so
+remember
+we're looping through all of our frames
+up here so this is effectively like
+saying hey grab
+frame zero add it to the window grab
+frame one add it to the window all the
+way up to frame 29
+so that is what these two blocks are
+doing and then we're basically saying
+all right that's video one now done
+now append that to all of our sequences
+so
+what we're doing is true once we've
+loaded that numpy array we're storing
+that inside of a variable called res
+and then we're appending that to our
+window so again we're going through each
+one of the 30 frames and appending it to
+our window
+and then we're grabbing our window or
+effectively a video and we're appending
+it to our sequences array
+which we had up here so this is going to
+mean our sequences array is going to
+have
+90 different videos effectively
+represented in
+it each one of those is going to be 30
+frames each
+and then what we're doing while we're
+doing that is we're appending the label
+to that so i've written
+labels dot append and then we're using
+our label map up here and passing
+through our action
+so if we take a look at our sequences
+remember this is going to be all of our
+data so if we type in dot shape
+should be in the shape 90 comma 30 comma
+1662 so dot shape
+uh what do we have there so this should
+be a numpy array let's do that
+there you go so we've got 90 videos each
+which
+is 30 frames each and then each one of
+those has 1662 different key points
+cool and if we take a look at our labels
+as well
+this should be in the shape 90 comma 3
+because remember we've got three
+different actions
+well actually it's going to be 90 comma
+1 because we haven't converted it yet um
+let's convert that to a numpy array
+right cool all right that's all looking
+well and good
+now the next thing that we need to do is
+actually start pre-processing this
+to get it into a format that we can
+start working with so let's go ahead and
+do that
+so all we're really going to do for our
+sequences is we're just going to store
+it inside of a numpy array because
+that's going to make it
+easier to work with
+and then if we take a look at x that's
+all looking good dot shape
+we're good to go there for our y values
+however what we're going to do is we're
+going to use this
+two categorical function to one hot
+encoded so let's do that
+and if we take a look at y there you go
+so what we've basically gone and done is
+we've converted our initial labels which
+remember is just going to be a series of
+numbers so zero
+one and two once we've passed it through
+our label map and we've converted it to
+a one hot encoded representation so
+basically
+it's like a binary flag so one and then
+one
+in the two position and then one in the
+three position so
+this value over here represents hello
+this value over here
+represents what is it thanks so the
+second having one
+in the second position represents thanks
+and having one in the last position
+represents i love you so that's our data
+now ready
+now the next thing that we need to do is
+actually perform a training and testing
+partition so what we're going to do now
+is use the train test split function to
+do that
+okay that is our training and testing
+split now done so
+all i've done is i've unpacked the
+results of the train test split function
+so
+x underscore train comma x underscore
+test comma
+y underscore train comma y underscore
+test equals
+train test split and then two that will
+pass through our x values and our y
+values as well
+then what we've gone and done is we've
+specified the test size so test
+underscore size equals 0.05 so this
+means our test partition is going to be
+5
+of our data now if we take a look at our
+data
+you can see that we've got 85 frames or
+85
+sequences inside of our training data if
+we take a look at our test
+we've got five sequences if we take a
+look at our y train
+we've got 85 labels which is good and if
+we take a look at our y test
+we've got five labels all right we're
+all good
+so that is section six now done so we
+what we did there is we imported our new
+dependencies created our label map we
+then
+went and read in our data from all of
+our different numpy arrays
+created our x variable and our y
+variable and then we set up our training
+and testing partition
+now comes the good bit actually going on
+ahead and training our lstm neural
+network so for this we're going to be
+using tensorflow and specifically keras
+so let's go on ahead and get started so
+first up what we need to do is
+import a couple of key dependencies so
+we're going to import the sequential
+model
+the a lstm layer and a dense layer so
+let's go on ahead and do this
+okay those are our three dependencies
+now imported so what we've gone and done
+is we've imported three different things
+there
+or four different things actually so
+from tensorflow.keras.models
+import sequential so this is going to
+allow us to build a sequential neural
+network now if you haven't seen
+my tensorflow crash course by all means
+do go and check that out i'll have the
+link somewhere above so you can see how
+that all fits together
+then the next thing that i've gone and
+done is i've written from
+tensorflow.keras.layers
+import lstm and then comma dense
+so this is going to be our lstm layer so
+this gives us a temporal component
+to building our neural network and
+allows us to perform action detection
+and then i've passed through dense which
+is a normal fully connected layer
+then what i've also gone and written is
+from tensorflow.keras.callbacks
+import tensorboard so this is going to
+allow us to perform some logging inside
+of tensorboard
+if we wanted to go and trace and monitor
+our model as its training
+now the next thing that we're going to
+do is just create a log directory and
+set up our tensorboard callbacks i'll
+show you how to do this
+now
+okay that is our tensorboard callback
+now
+if you haven't dealt with tensorboard
+before basically it's a
+web app that's offered as part of the
+tensorflow package
+that allows you to monitor your neural
+network training so if you want to
+monitor your training and your accuracy
+as it's being trained highly recommend
+you take a look at tensorboard so i'll
+show you how to actually bring up those
+logs
+while it's training now the good bit
+let's go ahead and build up our neural
+network architecture so let's do this so
+i'm just going to create a couple of
+additional cells and let's go ahead and
+do it
+okay that is a neural network now set up
+now it's been a long time getting to
+this step
+but this is at least the initial bit of
+our deep learning process now kicked off
+so what i've gone and written
+is one two three four five six seven
+different lines of data
+now let's take a look at what we
+actually wrote so model first up we're
+instantiating the model so
+specifically the sequential api so i've
+written model
+equals sequential and then open and
+close parentheses so
+the nice thing about sequential is that
+it makes it easy to build up your model
+you can just add in a bunch of layers
+pretty straightforward again if you
+haven't dealt with the sequential api
+by all means do check out my crash
+course again i think it's like 20
+minutes but it'll give you a better
+understanding of how this works
+then what we're doing is we're adding
+three sets of lstm layers so i've
+written model dot add
+and then we've gone and passed through
+an lstm which is what we imported up
+here
+and then we've passed through 64 lstm or
+pass through what is that
+three keyword arguments and one
+positional argument so i've passed
+through
+the fact that we want 64 lstm layers or
+64 lsem units
+then we've specified return underscore
+sequences equals true
+so key thing to know is when you are
+using tensorflow with an lstm layer if
+you're going to stack them together you
+need to return the sequences
+because the next layer is going to need
+those so by specifying return
+underscore sequences equals true you're
+going to be able to do that
+then i've gone and specified the
+activation function which is going to be
+a relu again you can play around with
+this
+and then most importantly i've gone and
+specified the input shape so in this
+case our input shape is going to be 30
+frames per prediction
+multiplied by 600 or 16 062 values so
+remember this
+is effectively x dot shape
+it's effectively this here so remember
+each video is going to be
+30 frames by 1 62 key points
+then we've gone and created another two
+lstm layers so model.add lstm this one's
+going to have 128 units
+specified return sequences equals true
+because we've got one more after it and
+then activation
+equals relu then our next lstm layer so
+ls model.add
+lstm 64 return underscore sequences
+equals false and then activation equals
+relu
+and then oh so keep in mind so this one
+this particular line is going to have
+return sequences set to false because
+the next layer is a dense layer so we
+need to not return the sequences to that
+layer
+again for more on theory i highly
+recommend taking a look at andrew ing's
+deep learning specialization so there's
+a lot on this there
+now in this particular case i've sort of
+skimmed over but if you'd like a little
+bit more on it
+hit me up in the comments below i'm more
+than happy to help out
+so our next three layers are all dense
+layers so this is where we're
+using fully connected layers so model
+dot add dense
+and then we specified that we want 64
+dense units or fully connected
+neural network neurons then specified
+the activation equals relu
+again another dense layer as a model dot
+add dense
+32 activation enclosed value and then
+the piezo resistance the final layer
+which is going to be
+our actions layer so model dot add and
+then dense and then we specified
+actions dot shape zero so this is
+effectively extracting actions
+dot shape zero which is effectively
+three neural network units so this
+basically means that the return
+output of our model is going to be
+actually let's talk about the activation
+first
+and then i've gone and specified the
+activation equals softmax so this is
+going to return
+values that are within a probability of
+zero to one
+with the sum of all the values returned
+adding up to one so effectively we're
+going to get something like this
+so zero oh let's fix that up so zero
+zero point nine nine or it'll be zero
+point let's make it easy 0.7
+0.2 0.1
+so what this would effectively mean so
+if we get a result back
+that looks a bit like this
+so what this will mean is that we can
+type in mp.argmax
+once it's finally trained and this is
+basically saying that our action is
+position zero so if we go to actions
+and extract that value
+our model is effectively saying that the
+action predicted is hello so we're going
+to pass through
+our 30 frames plus 1 662 key points
+and out of it we're going to get a
+result like this which we can then
+pre-process and extract our actions
+so let's take a quick sidebar and let's
+talk about why we use this type of
+neural network a quick sidebar guys i
+wanted to talk a little bit as to how we
+actually got to this stage for using
+this particular type of neural network
+so specifically
+media pipe plus the lstm lays so about
+two weeks ago when i started research
+and development for this particular
+walkthrough i did a bunch of research
+and actually found that sort of
+state-of-the-art models or models that
+are currently out there tend to use
+a number of cnn layers followed by a
+number of
+lstm layers so specifically some people
+using a pre-trained mobile net
+followed by a number of lstm layers so i
+trained with a similar number of
+sequences that we did in this video so i
+think about
+30 different sequences per class so that
+would be 90 sequences in total
+and i was just getting nowhere near the
+level of accuracy that was going to be
+actually useful
+so quickly i sort of transitioned and
+started using media pipe holistic
+combined with the lstm laser
+now the reason that i ended up doing
+this is one we needed
+less data to produce a hyper accurate
+model
+two it was a much denser neural network
+so rather than having
+i think it was in the realm of 30 to 40
+million parameters in our neural network
+we had
+around about half a million parameters
+which means it was going to be
+way faster to actually going ahead and
+train that particular model
+and the third reason was because the
+neural network was a lot simpler and
+meant that it was going to be a whole
+heap faster when it comes to detecting
+in real time
+so just a quick note i wanted to give
+you a little bit of background as to how
+we actually went and formulated this
+neural network
+back to the tutorial alrighty so we're
+back to it now what we're going to do is
+we're going to compile our model and
+then we're going to fit it let's go
+ahead and
+wrap this up
+okay that is our model compiled so what
+i've written is model
+dot compile and then we've specified the
+optimizer that we want to use i've just
+gone and specified
+atom you could play around with a bunch
+of different app optimizers i like using
+atom
+then we've got an unspecified loss so
+this one you can't change so you have to
+keep this loss function the same so i've
+written loss
+equals categorical cross entropy so this
+is the loss function that you need to
+use when you have a multi-class
+classification model if you're using a
+binary classification model
+you'd use binary cross-entropy if you
+were performing regression with your
+neural network you'd probably use
+something like mean squared error
+but because we effectively have a binary
+classification model which is going to
+be oh sorry a multi-class classification
+model which is going to be doing
+something like this
+or returning something like this we need
+to be using categorical cross
+entropy and then we've also gone and
+specified some metrics this metrics bit
+is optional
+but i've gone and specified it anyway so
+we can track our accuracy as we train
+so we've gone and specified metrics
+equals categorical
+accuracy inside of square brackets so
+we're now pretty much good to go so the
+next thing that we can go ahead and do
+is actually fit and train our model
+so to do that we can write model
+model.fit
+and then pass through x strain y train
+the number of epochs so we'll set that
+to i think we'll do 2 000 to begin with
+and then we need to pass through our
+callback so callbacks equals
+and then tb callback
+which is from up here so the full line
+is dot fit
+plus through our x-train data pass for
+our y-train data specified at epochs
+equals to 2000
+specified our callbacks equals to square
+brackets tb
+underscore callback now the cool thing
+about using the
+media pipe holistic model in this
+particular case is that more often than
+not your data is going to be able to fit
+into memory
+so you don't need to build a data
+generator to be able to build up a
+pipeline of data
+fits in more often than not it's going
+to fit all into memory and you'll be
+able to train this on the fly
+so in this case let's go ahead and kick
+off our training we're going to let it
+run
+and then while that's happening we'll
+take a look at what tensorboard looks
+like
+and then we'll take a bit of a break and
+come back once it's all done so let's go
+ahead and run this
+and just make sure it kicks off
+successfully
+all right so that looks like it's all
+running so you can see that we've got
+our epochs running
+and that is all looking good so let's go
+ahead and take a look at tensorboard in
+the meantime while that's running
+so once we've kicked off our training
+remember we set up our tensorboard
+callback so if we go into
+our folder that we're training in you
+can see that we now have this folder
+called logs so if we step into that
+and step into that we've now got these
+tensorboard logs or tensorflow logs
+so let's actually open this up and
+actually run it so to do this we can
+just open up a new command prompt
+i'm going to go into that folder
+and we need to go into logs so cd logs
+cd train and then if we take a look
+inside that folder you can see that
+we've got those logs
+to open these up in tensorboard all you
+need to do is write in tensorboard
+equals uh log dr what is it logged here
+equals dot so what this effectively
+means is once you've
+navigated into the training folder that
+you can see the logs in if you run
+tensorboard
+dash dash logged out log or dash dash
+logd equals dot
+this is going to open up tensorboard
+from within the current folder so if i
+run this now
+if it opens up successfully you should
+see that
+it'll give us a link to go and access
+tensorboard
+there you go so it's running at
+localhost 6006. so if i copy this
+and go to that you can see our model is
+running and
+it looks like our categorical accuracy
+is performing pretty well so what are we
+at right now so right down there looks
+like we're
+at let's move down that down what are we
+at
+so in the bottom corner so our value is
+0.8471 so already our model is
+performing pretty well
+and what are we at we're only at 80
+epoch 80. so again it's performing
+reasonably well you can see that that's
+training really really fast looks like
+our categorical accuracy is 94.52 so
+performing really really well
+but that sort of gives you an idea is
+how you can open this up inside of
+tensorboard so you can take a look at
+your neural network architecture
+take a look at your time series data so
+again this gives you the ability to look
+at all of these charts
+you can make it a little bit bigger and
+take a look at that so this is our
+accuracy up the top here so this is
+actually our
+training accuracy so keep in mind we're
+only working on training data at the
+moment so training accuracy
+and then we've got our epoch loss down
+here as well so this ideally you should
+see this come down
+over time already it looks like it's
+getting pretty low so it's training
+pretty well
+so again i think once we get to a
+certain level of accuracy we could
+probably stop this
+this is actually performing very well so
+it looks like it's already looks like
+we've got a bit of a drop off we could
+actually stop this here and see what it
+looks like so 93
+92
+okay we can actually stop that training
+so it looks like after running for about
+173
+epochs we've already got a categorical
+accuracy of 0.9375 it looks like our
+loss
+could potentially go a little bit lower
+looks like we might have started hit
+over training we got down pretty low
+then it started going up
+but again you can play around with this
+you can train for longer you can train
+for a shorter amount of time but at the
+moment it looks like it's training
+successfully so this is a really really
+good sign so now that that's done what
+we can actually go on ahead and do and
+again you could let this run for the
+full 2000 epochs but it looks like it
+was already performing pretty well so if
+i go and refresh this
+you can see that looks like we had a bit
+of a drop off which might mean that we
+might have hit
+over training but it looks like it's
+bumped back up so it looks like we're
+good now
+in this case we got looks like we hit a
+reasonable level of accuracy after just
+154 time steps so or 54 epochs so again
+pretty pretty well
+now the next thing that we can go on
+ahead and do is actually take a look at
+what our model looks like so we can do
+this
+by running model.summary
+and you can see here that we've got our
+three different lstm layers followed by
+our dense layers now again as i was
+saying in the sidebar
+the beauty of running it like this is
+that you've got a reasonably small
+number of parameters that you need to
+train so
+it's got 596 000 rather than the
+millions that i was getting when i was
+using a cnn layer but again if you
+wanted to explore leveraging a cnn layer
+you could you're just going to need a
+ton more data okay now that that's done
+what we can actually go on ahead and do
+is try making some predictions so
+remember we've got our model so we can
+type in model.predict
+and we can actually pass through our
+test data so x underscore test
+and this is giving us a different
+prediction so again we need to
+unpack this a little bit so to actually
+get these values
+or get the results of these so say we
+store our results inside of a variable
+called res
+now if we grabbed the first value to get
+what this actually means we can use
+np.argmax so remember this array over
+here
+is almost an exact representation of
+what i was talking about up here so this
+value if i actually sum these values
+you can see that the sum of each one of
+those values
+sums up to 1. so what our softmax
+function over here is going to do
+over here is going to give us an array
+of probabilities that add up to one the
+highest value or the highest probability
+within that array represents the action
+that's been detected so if we actually
+take a look now
+and type in np.argmax
+this is saying that position one is the
+detected action so if we type in action
+this means that uh what are we doing
+there it should be actions
+there we go so this means that that for
+that particular value it's thanks that's
+been detected now if we actually compare
+that to our y train data
+which were y test state of my bad and
+if we grab the first value you can
+already see that it's
+the right result but i'll sort of walk
+you through it
+what's happening there why test zero
+oh we need mp.argmaxnp.org max
+it's thanks so you can see that it's
+accurately predicting the right result
+so what i've gone and written there is
+np.argmax and then passed through our
+first value from our results array
+and then i've gone and passed that into
+the actions array so if we go and change
+this now did one
+let's take a look so again one is thanks
+what about two two is hello let's see if
+it picked up hello
+picking up hello so already it's
+performing reasonably well three
+three is hello i'm always skeptical when
+i get really good accuracy
+three's hello four is hello as well okay
+so that looks like it's already
+performing
+pretty well now what we actually want to
+go ahead and do is save our model so
+it's always good practice after you've
+gone and trained a neural network to go
+on ahead and save your values this just
+make sure that you've got it if you want
+to leverage it later on
+so let's go ahead and save these weights
+so i can type in model.save
+and then we're just going to call it
+action.h5
+cool that's our model now saved so it's
+just a single liner so if we go and take
+a look
+inside of our main folder you can now
+see that we've got action.h5
+if i delete that let's just just to
+prove you i'm doing it
+so load go and save it you can see it's
+there
+now if we wanted to reload it say for
+example we deleted our model
+what we need to do is go back up to this
+section over here
+and run our model rebuild
+and then go and compile it so just run
+the compile cell
+and then what we can do is run
+model.load
+weights and then pass through the name
+of our weights which is going to be
+action.h5
+there you go so that's our model
+reloaded now
+what we should ideally do is do a little
+bit of evaluation to see how this is
+actually performing so what we're going
+to do now is import a couple of metrics
+from scikit learn to
+evaluate the performance of our model so
+let's go ahead and do this
+okay so what i've gone and written there
+let's actually add in a couple of extra
+cells so we can see this a little bit
+better
+so from sklearn.metrics import
+multi-underscore label
+underscore confusion underscore matrix
+and then comma accuracy under source
+score so a multi-label confusion matrix
+is going to give us a confusion matrix
+for each one of our different labels
+and this allows us to evaluate what's
+being detected as a true positive and a
+true negative and what's been detected
+as
+a false positive and a false negative so
+let's go ahead
+and test these out now so what we're
+going to do is first up make some more
+predictions so we're going to call it y
+hat
+and then we're going to call our
+model.predict on our test data so x test
+and then what we can go ahead and do is
+extract the predicted classes so let's
+do this
+so all i've written there is i've just
+converted the y original y hat value to
+something that looks like this so it's
+just the individual numbers
+which represent the classes and i've
+gone and converted y test
+back to the same so let's take a look at
+that or why true
+again similar so what i've written is y
+true equals
+mp.argmax and then to that i've passed
+through the y
+test value and then i've specified
+access equals one because this
+represents that we want to convert
+that or the second dimension in that
+array then we've gone and converted it
+to a list by passing through dot to
+list and then done the exact same thing
+on our y-hat value
+so now if we go and evaluate this so
+let's run our multi-label confusion
+matrix
+and pass through our y true
+and y-hat so in this case we've only got
+our first two labels in our test data so
+this is going to sort of skew our
+results but that's fine let's actually
+interpret this
+so what we're actually getting back is a
+confusion matrix of the shape
+to two so in this case here you what you
+want when you're evaluating your model
+is for all of the numbers to either be
+in the top
+left-hand corner or the bottom right
+hand corner so this these are true
+positives
+these are true negatives true positives
+true negatives the higher the number
+that you have in these values represents
+the poorer performing model that you've
+got so if i zoom in on that you can
+start to see that there
+so right now model's got all of our
+values in the top left and the bottom
+right
+top left bottom right we're actually
+performing really really well now if we
+actually go and pass this to our
+accuracy score method
+again the higher the number that we get
+here the better our model is performing
+so if i pass through y true and then y
+hat again that is a hundred percent
+accuracy on our test set
+now this is obviously a really small
+test set so if we actually did this on
+our training data which is not ideal but
+i know but it allows you to see
+it in a broader perspective and if we go
+and evaluate it so
+to do this all you need to do is change
+what you're passing through to the
+modeled or predict function so in this
+case i'm changing it to
+x underscore train and again i'm passing
+y underscore train
+to this line over here so if we go and
+run this now
+you can see that in this case our multi
+confusion matrix shows a slightly less
+better performance
+so we've got 51 values in our true
+positive cell 26 values in our true
+negative cell
+seven values over here and one value
+over here so again it's performing
+reasonably well
+maybe could perform a little bit better
+but again forming not too bad to be
+honest
+and if we go and run it through our
+accuracy score function
+again that's giving us about 91 percent
+accuracy in or 90.5 percent accuracy so
+you can see that there
+okay that is our model evaluated now
+we've got one last step to get this all
+done so that is step 10
+evaluation now done we're now up to
+testing in real time so what we're going
+to do is we're going to bring
+this all together now so first up what
+we need to do is re-establish
+a loop so remember similar to what we
+had
+where is it damn we've written a lot of
+code what we wrote over here so we're
+going to copy this loop
+and bring it down
+up we're zooming out so what we're going
+to do now is make a bunch of updates to
+this loop in order to perform our
+real-time detection so first up we're
+going to create some new variables so
+let's go ahead and do this
+okay those are our four detection
+variables
+now created so i've gone and created oh
+sorry three cr detection variables now
+created so i've gone and created one
+called sequence
+so this is just going to collect our 30
+frames in order to be able to generate a
+prediction
+so as we're looping through our frames
+using opencv
+we're going to append to this sequence
+and once we've got 30 frames
+then we'll pass it to our prediction
+algorithm to start kicking off our
+predictions
+then i've created another variable
+called sentence so this is going to
+allow us to concatenate our history of
+detections together so we can actually
+concatenate those
+and then last but not least we've
+created a variable called threshold
+which is this one down here so this
+basically is sort of like our confidence
+metric so
+we're only going to render results if
+they're above a certain threshold now
+the next thing that we need to do is
+actually implement our prediction logic
+now keep in mind that in order to
+generate a prediction we need 30 frames
+of data so what we're effectively going
+to be doing
+is concatenating our data onto sequence
+then once we've got 30 frames of data
+we're going to be able to make a
+detection so let's go ahead and do this
+okay at a bare minimum that is our
+prediction logic
+now implemented so let's take a look at
+what we wrote there so first up what
+i've written is key points
+equals extract underscore key points and
+then to that we're passing through
+results so remember that is using
+this function that we wrote from over
+here
+to extract our key points then i've gone
+and written sequence
+dot append and we're effectively
+appending our key points to the end of
+that
+and from there what we're going to do is
+we're going to grab the last 30 sets of
+key points so this is going to allow us
+to grab our last 30 frames
+to be able to generate our prediction so
+initially we're not actually going to
+have 30 frames so what we're then going
+to do is implement a little bit of logic
+so if the length of length of our
+sequence equals 30
+then and only then will we run a
+prediction so in order to do that i've
+written
+if len and then two that will pass
+through sequence equals equals 30
+and then we're actually running our
+prediction so res equals
+model.predict so no different to what
+we're doing over here to generate our
+prediction
+but what i've actually gone and done is
+run np.expanddims so if i actually show
+you that so mp.expand
+dims
+actually let's actually take a look at a
+proper example so if i run model.predict
+on x test that'll work fine right but if
+i grab
+one sequence what it's going to what's
+going to happen is we're actually going
+to get an error and this is because
+the shape is incorrect so the shape of
+this particular value
+is incorrect so if i type in dot shape
+you can see that our shape is 30 comma
+by 160
+1662 but the shape that our sequence is
+actually expecting
+is what is it one comma 30 comma 1 6
+6 2 or number of sequences
+right so we actually need to encapsulate
+this inside of another array now
+this is really easy to do you can just
+do np.expanddims
+and then pass through access equals one
+and you should be good to go so if we
+take a look at our shape now
+we're good oh this should actually be
+zero
+there we go we're good to go now if we
+pass this to model.predict we
+should get a successful prediction
+and there you go so that allows us to
+pass through one sequence rather than
+having to pass through a bunch we can
+pass through one sequence at a time
+so that is all well and good so let's
+actually test this out now so right now
+we're only going to be printing our
+results so
+let's actually do this mp.argmax
+and then grab actions
+and let's see how that goes let's run
+that
+okay that's looking good looks like
+we're getting classes predicted
+getting hello looks like it's still
+predicting i love you i can't keep up
+i thought we had a change there let's
+actually implement our rendering what
+about thank you
+okay there we go we're getting hello
+heading thank you
+looks like we might have had a bit of an
+error in our logic there
+and what about thank you
+and then we're getting thanks okay cool
+so we had to make one tweak so
+let's stop this so the one change that i
+made there is that rather than appending
+to the end
+i'm inserting the key points at the
+start so this is going to sort out i
+believe
+our logic i need to actually double
+check if this is the right way to do it
+but
+again it looks like we're getting proper
+predictions there now
+so what we're going to do now is
+actually
+add some rendering logic so let's go on
+ahead and do this
+so just to quickly recap so what i did
+is rather than having
+sequence dot append i've actually gone
+and run
+sequence.insert so this is going to add
+our key points to the start of the frame
+so the start is going to be the main
+action and then we're going to have the
+trailing values
+so let's go ahead and implement our
+visualization logic
+okay we've gone and written a ton of
+code there looks pretty complicated but
+let me quickly walk through it
+so first up we're checking whether or
+not our result is above the threshold so
+to do that we're first up extracting the
+highest score result so mp.argmax
+and then we're passing through res also
+by the way i've got to double check if
+this is the right way to do it i think
+there might be a
+little bit of a weird thing in the logic
+so if you've got any ideas on this do
+let me know so i'm
+tossing up whether or not you
+sequence.insert or sequence.append
+we'll take a look at and see the
+performance between using either of
+those
+i think it should be sequence don't
+append but it looks like sequence.insert
+is working so again we'll come back to
+that later
+for now let's take a look at avi's logic
+so if
+res and then inside of square brackets
+np dot argmax and then we're passing
+through res so this is effectively
+grabbing our threshold so let's take a
+look so
+res and then we're going mp.argmax
+and then res so that's doing that and
+then we're actually grabbing the
+threshold
+so basically it was saying if that is
+above the threshold
+true then keep going then we're checking
+if the length of the sentence is greater
+than zero so this variable over here so
+this is just checking whether or not
+we've got more than a certain number of
+words or whether or not we've got words
+in our sentence already
+now the reason that we're doing this is
+that we don't want to double up so again
+our model is going to be continuously
+detecting so we want to only want to
+append
+the next sequence or the next action if
+that action is different
+from the last and this is effectively
+what this is doing here
+so what we're doing is we're checking if
+the current action does not equal the
+last sentence in our string
+if it does then we're not going to do
+anything this should actually be back
+here
+so effectively what we're doing is if we
+check we're checking for the last word
+matches the current prediction if it
+does then we're not going to append
+to the sentence length if it does then
+what we're going to do is we're going to
+append
+the current detected action onto our
+sentence array
+then if our sentence length is above
+five words or if it's already been
+established what we're then going to do
+is append
+the initial action now the reason that
+we're doing this is if there's no
+sentences
+in the current array then the current
+action can't match
+what the is already in the sentence
+right so like if there's nothing in
+there then the current action is not
+going to be the same as what's in there
+because there's nothing in there so
+effectively
+we're just doing a check to do that then
+if our sentence length is greater than
+five words what we're effectively doing
+is we're just grabbing
+the last five values so if len
+sentence is greater than five then
+sentence equals
+sentence and then inside of square
+brackets minus five colon so this is
+just going to grab the last five values
+so that we don't end up with this giant
+array that we're trying to render
+and then what we're doing is a little
+bit of rendering so we've written cv2
+dot rectangle
+and then we'll pass through our image
+pass through the start point so this is
+going to be the top
+left hand or right hand corner
+effectively the top corner and then
+we're going all the way to the other
+side so we're
+going all the way to 640 by 40
+specifying the color of our box and
+specifying negative one
+this means it's going to fill out a
+rectangle and then we're running cv2.put
+text and we're actually going to
+render our sentence so again no
+different to how we currently use
+cv2.put text
+the only difference now is that we're
+concatenating our sentence array
+together so we've written
+cv2.put text pass through our image and
+then
+open quotes dot join and then sentence
+so this is effectively going to
+concatenate our sentence together with
+the space between them so we can print
+it out
+and then we specify the starting
+position the font
+the font size font color the font line
+width
+and then the line type so if we go and
+run this now let's take a look and see
+what our detections look like oh we've
+got an error there
+add a colon
+okay so that's detecting hello
+accurately
+and again because we're doing hello so
+if we do i love you
+doesn't look like it's picking up i love
+you oh there we go i love you
+thanks hello
+i love you probably could do better on i
+love you
+thanks
+and there you go that is our sign
+language detection now working so pretty
+cool right
+so again if we do i love you i love you
+on my right hand doesn't seem to be
+working as well as there we go i love
+you
+i love you there we go pretty cool right
+thanks
+that is it working in a nutshell we can
+always put down the green screen
+check this out so
+thanks
+so i love you is coming in from the side
+as well i love you
+hello i love you
+there you go i love you thanks
+thanks is working perfectly i love you
+hello
+there you go that is our sign language
+detection in a nutshell so this
+obviously gives you the ability to do
+this
+works pretty well let's actually try
+using the append method so if i stop
+this now
+i tweaked this line to see if that
+worked any better so if we change this
+from
+insert to append
+in theory it should be a pen but it
+looks like inserts working better
+let's try that
+run it again
+yeah so that's a little weird so when
+we're using append it's
+only detecting i love you
+out weird might need to dig into that a
+little bit more
+about things
+strange yeah so this should be in this
+case it
+we're going to leave it as insert so
+that it works but we might need to dig
+into that a little bit more but that
+gives you an
+idea as to how to actually get this
+running
+so if we stop it and run it again
+run cap.release
+cool thing as well is like i took down
+the green screen and it's still working
+so again this
+sort of shows you that it's not
+dependent on your background and that
+you can actually use it in a bunch of
+different circumstances so let's run
+this again
+and so if we use hello
+thanks and then what's another one so i
+love you
+hello hello
+how cool is that so that's obviously
+working pretty well what we can also do
+is bump up the detection threshold so
+right now we're running it at 40
+so let's say we did it at 70 rather so
+let's try that
+so that's obviously performing a whole
+heap better now
+what was it i'm getting confused hello
+i love you again working way better once
+we bumped up that threshold so again
+that sort of gives you an
+idea as to what's possible now there's
+one last thing that i wanted to sort of
+show you and that was the ability to
+render the probabilities which makes it
+look
+super cool so what we're going to do is
+we're going to write up a quick function
+to render that so let's do it
+okay that is a probability visualization
+now done now
+let me actually show you what this looks
+like so if we type in plot
+dot i am show and remember we've got our
+last frame right so plot.i am show
+frame so that's going to be our last
+frame now
+in this case we don't actually have
+anything detected so let's wait and see
+if it actually works
+so if we pass through prob underscore
+vis which is the function that i've just
+gone and written
+and passed through our results
+which should be called
+actually it'll be called res which is
+coming from
+and actions
+input frame and our colors
+actually let's use rather than using
+frame let's use the image because the
+image is going to have our key points
+drawn on it
+i thought i am sure yeah so our image
+has already got our key point so let's
+use that one
+uh looks like we've got a slight uh this
+should be output frame there you go
+so what i've actually gone and written
+up there is a probability visualization
+so it's a little bit small there let's
+actually make it bigger
+so you can see that we've now got this
+dynamic visualization and this allows us
+to see
+the different actions and how their
+probabilities are calculated in real
+time which makes it
+a lot more fun so let's take a look at
+how we've actually gone and written this
+so first up i've gone and created a
+array called colors and this is really
+just for the coloring of these arrays so
+it'll
+appear better when we actually run it in
+real time because we'll have the cv2
+color flipping as well so we'll go from
+bgr to rgb
+so i've written colors and then i've
+passed through three different color
+combinations one for each action you can
+play around with these
+and then we've created our function so
+we've written def prob
+underscore vis and then to that we're
+going to pass through three positional
+of
+four positional arguments so the results
+that we get from our predicted model
+our actions our input frame which is
+eventually going to be our image
+and then the color so this over here
+then we're making a copy of our frames
+i've written output underscore frame
+equals input frame dot copy and then
+we're just looping through each of the
+results that we've got in our variables
+so what i'm doing is read
+what i've written is for num comma prob
+in enumerate results
+so this is going to be all of our
+different probabilities so we'll have
+three values
+and then drawing a dynamic rectangle so
+basically what we're doing is
+we've written cv2.rectangle and we're
+putting that on our output frame
+and then we're dynamically positioning
+it based on the position
+or the action that we're currently
+working through so 0 comma 60
+plus the number of the action so 0 1 or
+2 multiplied by 40. so this just moves
+it up and down dynamically
+and then i've written int prob multiply
+by 100 so this is going to change the
+length
+of our bar depending on how high our
+probability is
+so right now you can see thanks is the
+highest probability value so the bar is
+longer
+and then we've specified the end point
+for our frame then we're going to pass
+through the color that we want to put so
+in this case the first color is going to
+be hello the second color is going to be
+thanks third color is going to be i love
+you
+and then filled in the box and then
+we've gone and done a similar thing to
+basically output our text so again just
+a standard cv2.put text method
+and then we're returning that output
+frame so we can now go and bring this
+prop
+viz function into our loop and visualize
+it in real time so let's do that
+so all i've gone and written as image
+equals proper underscore vis
+pass through our results that we're
+getting from our model.predict function
+over here pass through our actions our
+image and our colors now remember our
+colors is defined up here but you could
+bring this down into here as well
+so let's go on ahead and test this out
+so ideally we should see our
+probabilities visualize in real time now
+and there you go so it's already
+detecting our difference so if we go and
+try hello
+you can see the probability for hello
+bumps up so if we do thanks
+automatically switches to thanks if we
+do
+i love you you can see our probability
+for i love you pops up how cool is that
+hello oh but didn't get it hello
+so it looks like hello works better on
+our right hand thank you
+oh this is awesome sorry i'm always
+fascinated by this
+i love you i love you it doesn't work so
+well with that right head
+uh we can start to see that i love you
+on our left hand perfect
+thanks thanks works really really well
+hello hello
+thanks i love you
+come on i love you
+thanks
+on that note that about wraps it up so
+this is everything that i've wanted to
+show you so
+again you can see that there's a whole
+bunch of applications for this we can
+play around until your heart's content
+but this sort of gives you and again we
+can take this down so you can see it a
+little bit better
+so again hello thanks
+i love you wait i love you works with
+this hand it doesn't work with the other
+hand so well
+but again you can start to see what's
+possible with this so this is obviously
+using action detection works in a bunch
+of scenarios
+but on that note that does wrap it up so
+we've gone through a
+ton of stuff in this video so let's
+actually stop this
+and take a look at what we've done so
+we started off by installing and
+importing our dependencies we built up
+all of our functions using media pipe
+holistic
+we then went and extracted our key point
+values remember we wrote our abstract
+keypoints function function
+set up our folders for collection we
+went and collected our key points
+pre-processed our data built our lstm
+neural network
+we then went and made our predictions
+and eventually we went and tested this
+out in real time so eventually
+we were able to run this and effectively
+get our detections running in real time
+including our probability visualization
+which is pretty cool right so again
+we can go and run i love you oh this is
+running hello i love you
+thanks and again you could extend this
+out you could do so much with it if you
+wanted to add additional actions you
+could if you wanted to add
+different colors or different
+visualizations by all means the world is
+your oyster thanks again for tuning guys
+on that note that about wraps it up
+what's happening guys editing nick here
+it was bugging the absolute hell out of
+me that i couldn't work out what was
+happening with that sequence append
+slash sequence dot insert step now i
+ended up doing
+a bunch of debugging after the fact and
+actually worked out that what was
+happening
+is that when we were using
+sequence.append we were grabbing
+the first 30 frames which would have
+meant that
+we're adding to the end but we're still
+grabbing the first 30 which meant it
+wouldn't have actually worked out
+so i ended up updating the code and this
+is what happened
+so guys after recording the video it was
+absolutely bugging the hell out of me
+that this
+didn't make sense in terms of what i
+wrote so i ended up doing a bunch of
+debugging and what
+actually was happening was when we were
+using sequence
+dot append here which is in theory how
+it should have worked
+what was actually happening was we'd be
+appending to the end of the sequence
+but then we'd be taking the first 30
+frames because this
+is exactly what this line is doing now
+what i ended up doing is just flipping
+things around so i wrote sequence
+dot append and then key points and then
+this new sequence line would be grabbing
+the end
+30 sequences so say for example i let's
+take a look
+to see if we've got a sequence
+right so that's our sequence now what
+i'll do is i'll just to demonstrate i'll
+append to it right so append
+and we'll append a random word to abc so
+if we take a look at our sequence now
+right so you can see that we've got abc
+at the bottom there let me zoom in on
+that
+so if we used this type of capture so
+sequence and then the colon at the front
+and then 30 what would have ended up
+happening
+is this
+right so we would have skipped out on
+the last frame so you can see that abc
+isn't there this would have meant that
+when we actually go to detect our action
+we wouldn't actually be picking up the
+last frame
+now sequence.insert worked because we
+were grabbing the first 30 frames and we
+were appending
+the current frame to the start of the
+array that's why that actual flow worked
+but in theory we'd want to keep it in
+the same structure as the way that we
+actually train
+the model which is appending the current
+frame to the end of the sequence
+now this is a really easy fix all we
+needed to do is move this colon around
+and add a negative to the front of this
+open that up and you can see
+that now it would be grabbing the last
+frame which is exactly
+what i've gone and done here now i did
+add one extra thing to this so i
+actually added
+this line here now what i actually
+noticed when i was training is that so
+sometimes we would get a random
+detection
+as we were transitioning between frames
+which would mean that i might go hello
+and then it might accidentally detect i
+love you as we're in
+the middle of transitioning to thank you
+for example so this line here
+is actually appending all of our
+predictions to a new prediction array
+which i stored up here
+and what it's doing is it's basically
+grabbing the last
+10 predictions and it's using a
+numpy.unique function to grab the unique
+prediction so say for example let's
+actually take a look
+predictions so you can see this is my
+predictions array so what it was doing
+or what it is doing
+is it's grabbing the last 10 values so
+let's do that
+and all this updated code will be
+available in the github repo so i'll
+actually give you
+the code that we wrote in the main
+tutorial and i'll also give you this
+refined code so you can see the
+differences between both
+so if i write 10 so this is going to
+give us our last
+10 arrays and then by running through
+numpy.unique
+we're going to get the unique values so
+what we're basically checking and then
+i'm grabbing that value out of that so
+what we're basically checking is to make
+sure that the last 10 frames had the
+exact same prediction so this gives us a
+little bit more stability when actually
+predicting our actions
+now we can go ahead and test this out so
+you'll see that again it works so if i
+run this cell now
+again the only changes that we made were
+adding this predictions array
+which you can see is now implemented
+here and here
+so this line this line and this line
+so this is actually the check and then
+we went and updated this sequence logic
+as well so again only like
+five lines of change so one
+two three and then four and five
+again and so ideally this should make it
+a little bit more stable when it comes
+to actually making predictions and i've
+also tabbed this stuff in just to make
+it
+a little bit more resilient particularly
+if we're doing our first detection
+so let's go ahead and test this out so
+you'll see what it actually looks like
+okay grey box run it again
+cool that's us so we can go hello
+you can see a lot more stable now let's
+transition
+and did you see there how we accident we
+actually had an i love you
+detected between the thanks but because
+it didn't hold for the 10 frames
+it didn't mis-detect that particular
+action so again it performs
+way better so again now we can form i
+love you
+and you can see it actually holds a
+little bit between detections now so
+we've
+actually got the ability to minimize our
+false detection so again we'll
+throw up thanks and there you go so
+again it did that false detection with i
+love you
+but it held so hello
+there you go hello so you can see it's
+way more stable when actually making
+those detections now by implementing
+that additional logic
+but again that is our action detector
+model now working pretty well
+there you go hello
+thanks
+i love you pretty cool right so that i
+wanted to give you a little bit of an
+update as to how to actually make this a
+little bit more accurate
+and a little bit more resilient
+particularly because we are detecting so
+frequently
+now the other thing is that i'll make
+the trained weights available inside of
+the github repository as well so
+if you wanted to leverage those you
+definitely can thanks so much for tuning
+in guys hopefully you enjoyed this video
+if you did be sure to give it a thumbs
+up hit subscribe and tick that bell and
+thanks so much for sticking along for
+this ride i know it's been a while to
+get to this particular video
+but we finally got there hopefully you
+enjoyed it and i'd love to hear what you
+end up doing with it thanks again for
+tuning in
+peace 
