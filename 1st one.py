@@ -18,6 +18,15 @@ def mediapipe_detection(image, model):
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     return results, image
 
+#dran landmark function
+def draw_landmarks(image, results):
+    mp_drawing.draw_landmarks(image, results.face_landmarks, mp_holistic.Face_Connections)
+    mp_drawing.draw_landmarks(image, results.right_hand_landmarks, mp_holistic.Hand_Connections)  
+    mp_drawing.draw_landmarks(image, results.left_hand_landmarks, mp_holistic.Hand_Connections)
+    mp_drawing.draw_landmarks(image, results.pose_landmarks, mp_holistic.POSE_Connections)
+    
+
+
 #using holistic model in opencv feed
 cap = cv2.VideoCapture(0)
 with mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as model:
